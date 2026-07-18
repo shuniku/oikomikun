@@ -90,6 +90,8 @@
 ├── README.md            # 利用者・開発者向け概要
 ├── index.html           # エントリポイント
 ├── css/style.css        # スタイル
+├── image/favicon.svg    # ファビコン（SVG）
+├── image/apple-touch-icon.png  # ホーム画面追加用アイコン（180×180）
 ├── js/timer.js          # タイマーロジック（純粋関数のみ・DOM非依存）
 ├── js/app.js            # UI制御・音声・Wake Lock・localStorage
 └── test/timer.test.js   # ロジックのユニットテスト（node --test）

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- 背景：警告・追い込みをイメージする鮮やかな赤 -->
+  <rect width="32" height="32" rx="6" fill="#dc2626"/>
+  
+  <!-- 時計の文字盤 -->
+  <circle cx="16" cy="16" r="11" fill="#ffffff"/>
+  
+  <!-- 追い込まれている時計の針（11時55分：ギリギリの状態） -->
+  <path d="M16 7V16H21" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- 汗・スピード感を表す斜線（追い込み感の演出） -->
+  <path d="M26 6L28 4M28 9L30 8" stroke="#facc15" stroke-width="2" stroke-linecap="round"/>
+</svg>
