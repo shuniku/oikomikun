@@ -93,6 +93,41 @@ body.phase-finished { background-color: var(--bg-finished); }
 }
 
 /* ===== 設定画面 ===== */
+.lang-row {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  color: var(--color-text-dim);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  min-height: 32px;
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  transition-property: color, background-color;
+  transition-duration: var(--duration-press);
+  transition-timing-function: var(--ease-out);
+}
+
+.lang-btn.is-active {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.lang-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 2px;
+}
+
 .app-title {
   text-align: center;
   /* ポップな印象の丸ゴシック系。OS 標準フォントのみ（オフライン制約のため Web フォント不使用）。

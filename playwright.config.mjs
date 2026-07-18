@@ -7,6 +7,8 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   use: {
     baseURL: 'http://127.0.0.1:8788',
+    /* 既存テストは日本語UIを前提とするため、ブラウザ言語を日本語に固定する */
+    locale: 'ja-JP',
     trace: 'on-first-retry',
   },
   projects: [

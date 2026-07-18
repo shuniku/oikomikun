@@ -24,39 +24,41 @@
 
     <!-- 設定画面 -->
     <section id="setup-screen" class="screen">
+      <div class="lang-row" id="lang-row" role="group" aria-label="Language"></div>
+
       <h1 class="app-title">追い込みくん</h1>
 
       <div class="preset-row" id="preset-row" role="group" aria-label="プリセット"></div>
 
       <form id="setup-form" class="setup-form" novalidate>
         <div class="field">
-          <label for="input-prepare">準備（秒）</label>
+          <label for="input-prepare" data-i18n="fieldLabels.prepareSec">準備（秒）</label>
           <input type="number" id="input-prepare" inputmode="numeric" min="0" max="300" step="1">
         </div>
         <div class="field">
-          <label for="input-work">運動（秒）</label>
+          <label for="input-work" data-i18n="fieldLabels.workSec">運動（秒）</label>
           <input type="number" id="input-work" inputmode="numeric" min="1" max="3600" step="1">
         </div>
         <div class="field">
-          <label for="input-rest">休憩（秒）</label>
+          <label for="input-rest" data-i18n="fieldLabels.restSec">休憩（秒）</label>
           <input type="number" id="input-rest" inputmode="numeric" min="0" max="3600" step="1">
         </div>
         <div class="field">
-          <label for="input-sets">セット数</label>
+          <label for="input-sets" data-i18n="fieldLabels.sets">セット数</label>
           <input type="number" id="input-sets" inputmode="numeric" min="1" max="99" step="1">
         </div>
       </form>
 
-      <p class="total-preview">合計 <span id="total-preview">--:--</span></p>
+      <p class="total-preview"><span data-i18n="totalLabel">合計</span> <span id="total-preview">--:--</span></p>
 
       <label class="sound-toggle">
         <input type="checkbox" id="input-sound" checked>
-        サウンド ON
+        <span data-i18n="soundLabel">サウンド ON</span>
       </label>
 
       <div id="error-box" class="error-box" role="alert" hidden></div>
 
-      <button type="button" id="btn-start" class="btn btn-primary">スタート</button>
+      <button type="button" id="btn-start" class="btn btn-primary" data-i18n="start">スタート</button>
     </section>
 
     <!-- タイマー画面 -->
@@ -70,14 +72,15 @@
       </div>
 
       <div class="control-row">
-        <button type="button" id="btn-pause" class="btn btn-primary">一時停止</button>
-        <button type="button" id="btn-reset" class="btn btn-ghost">リセット</button>
+        <button type="button" id="btn-pause" class="btn btn-primary" data-i18n="pause">一時停止</button>
+        <button type="button" id="btn-reset" class="btn btn-ghost" data-i18n="reset">リセット</button>
       </div>
     </section>
 
   </main>
 
   <script src="js/timer.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

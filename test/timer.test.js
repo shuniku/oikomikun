@@ -29,11 +29,12 @@ test('validateConfig accepts a standard tabata config', () => {
   assert.deepEqual(result.errors, [])
 })
 
-test('validateConfig rejects workSec of 0', () => {
+test('validateConfig rejects workSec of 0 with structured error', () => {
   const result = validateConfig({ ...TABATA, workSec: 0 })
 
   assert.equal(result.isValid, false)
   assert.equal(result.errors.length, 1)
+  assert.deepEqual(result.errors[0], { field: 'workSec', min: 1, max: 3600 })
 })
 
 test('validateConfig accepts prepareSec and restSec of 0', () => {

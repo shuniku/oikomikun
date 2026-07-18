@@ -6,18 +6,17 @@
   'use strict'
 
   const Timer = window.HiitTimer
+  const I18n = window.HiitI18n
 
   const STORAGE_KEY = 'hiit-timer-settings'
   const TICK_INTERVAL_MS = 100
   const COUNTDOWN_BEEP_FROM_SEC = 3
 
-  const PHASE_LABELS = { prepare: '準備', work: '運動', rest: '休憩' }
-  const FINISHED_LABEL = '完了！'
-
   const elements = {
     body: document.body,
     setupScreen: document.getElementById('setup-screen'),
     timerScreen: document.getElementById('timer-screen'),
+    langRow: document.getElementById('lang-row'),
     presetRow: document.getElementById('preset-row'),
     inputs: {
       prepareSec: document.getElementById('input-prepare'),
@@ -40,22 +39,35 @@
   /** 実行中タイマーのランタイム情報（timer.js の state 自体はイミュータブル） */
   let runtime = null
 
+  /** 現在の表示言語（'ja' | 'en' | 'zh'） */
+  let currentLanguage = 'ja'
+
+  /** 直近の検証エラー（言語切替時にメッセージを再翻訳するため保持） */
+  let lastErrors = []
+
+  /** 現在言語の文言辞書を返す */
+  function t() {
+    return I18n.MESSAGES[currentLanguage]
+  }
+
   // ===== 設定の保存・復元 =====
 
   function loadSettings() {
+    const defaultLanguage = I18n.detectLanguage(navigator.language)
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
       if (!raw) {
-        return { config: Timer.DEFAULT_CONFIG, soundEnabled: true }
+        return { config: Timer.DEFAULT_CONFIG, soundEnabled: true, language: defaultLanguage }
       }
       const parsed = JSON.parse(raw)
       const config = Timer.validateConfig(parsed.config).isValid
         ? parsed.config
         : Timer.DEFAULT_CONFIG
-      return { config, soundEnabled: parsed.soundEnabled !== false }
+      const language = I18n.LANGUAGES.includes(parsed.language) ? parsed.language : defaultLanguage
+      return { config, soundEnabled: parsed.soundEnabled !== false, language }
     } catch (error) {
       console.warn('設定の読み込みに失敗したためデフォルト値を使用します', error)
-      return { config: Timer.DEFAULT_CONFIG, soundEnabled: true }
+      return { config: Timer.DEFAULT_CONFIG, soundEnabled: true, language: defaultLanguage }
     }
   }
 
@@ -68,6 +80,7 @@
       const settings = {
         config,
         soundEnabled: elements.soundToggle.checked,
+        language: currentLanguage,
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
     } catch (error) {
@@ -107,16 +120,26 @@
   }
 
   function showErrors(errors) {
-    elements.errorBox.textContent = errors.join('\n')
+    lastErrors = errors
+    const messages = errors.map((error) =>
+      I18n.format(t().errorRange, {
+        label: t().errorFieldNames[error.field],
+        min: error.min,
+        max: error.max,
+      })
+    )
+    elements.errorBox.textContent = messages.join('\n')
     elements.errorBox.hidden = errors.length === 0
   }
 
+  /** 言語切替時にも呼び直すため、毎回作り直す */
   function renderPresetButtons() {
+    elements.presetRow.replaceChildren()
     for (const preset of Timer.PRESETS) {
       const button = document.createElement('button')
       button.type = 'button'
       button.className = 'preset-btn'
-      button.textContent = preset.label
+      button.textContent = I18n.presetLabel(t(), preset)
       button.addEventListener('click', () => {
         applyConfigToInputs(preset.config)
         showErrors([])
@@ -124,6 +147,47 @@
         saveSettings()
       })
       elements.presetRow.appendChild(button)
+    }
+  }
+
+  // ===== 言語切替 =====
+
+  function renderLanguageButtons() {
+    elements.langRow.replaceChildren()
+    for (const language of I18n.LANGUAGES) {
+      const button = document.createElement('button')
+      button.type = 'button'
+      button.className = language === currentLanguage ? 'lang-btn is-active' : 'lang-btn'
+      button.textContent = I18n.LANGUAGE_NAMES[language]
+      button.addEventListener('click', () => {
+        applyLanguage(language)
+        saveSettings()
+      })
+      elements.langRow.appendChild(button)
+    }
+  }
+
+  function applyLanguage(language) {
+    currentLanguage = language
+    const messages = t()
+    document.documentElement.lang = I18n.HTML_LANG[language]
+    document.title = messages.documentTitle
+
+    for (const element of document.querySelectorAll('[data-i18n]')) {
+      const value = element.dataset.i18n
+        .split('.')
+        .reduce((object, key) => (object ? object[key] : undefined), messages)
+      if (typeof value === 'string') {
+        element.textContent = value
+      }
+    }
+
+    elements.presetRow.setAttribute('aria-label', messages.presetGroupLabel)
+    renderPresetButtons()
+    renderLanguageButtons()
+    showErrors(lastErrors)
+    if (runtime) {
+      renderTimer()
     }
   }
 
@@ -222,7 +286,7 @@
     sound.phaseStart(schedule[0].type)
     wakeLock.acquire()
     showScreen('timer')
-    elements.pauseButton.textContent = '一時停止'
+    elements.pauseButton.textContent = t().pause
     renderTimer()
   }
 
@@ -242,7 +306,7 @@
     if (nextState.isFinished) {
       stopTicking()
       wakeLock.release()
-      elements.pauseButton.textContent = 'もう一度'
+      elements.pauseButton.textContent = t().restart
     }
   }
 
@@ -285,12 +349,12 @@
       runtime.intervalId = setInterval(tick, TICK_INTERVAL_MS)
       sound.ensureContext()
       wakeLock.acquire()
-      elements.pauseButton.textContent = '一時停止'
+      elements.pauseButton.textContent = t().pause
     } else {
       runtime.isPaused = true
       stopTicking()
       wakeLock.release()
-      elements.pauseButton.textContent = '再開'
+      elements.pauseButton.textContent = t().resume
     }
   }
 
@@ -315,17 +379,17 @@
     const phase = schedule[state.phaseIndex]
 
     if (state.isFinished) {
-      elements.phaseLabel.textContent = FINISHED_LABEL
+      elements.phaseLabel.textContent = t().finished
       elements.timeDisplay.textContent = '00:00'
-      elements.setCounter.textContent = `全 ${phase.totalSets} セット お疲れさまでした`
+      elements.setCounter.textContent = I18n.format(t().finishedSets, { total: phase.totalSets })
       setBodyPhase('finished')
     } else {
-      elements.phaseLabel.textContent = PHASE_LABELS[phase.type]
+      elements.phaseLabel.textContent = t().phases[phase.type]
       elements.timeDisplay.textContent = formatTime(state.phaseRemainingMs)
       elements.setCounter.textContent =
         phase.type === 'prepare'
-          ? `全 ${phase.totalSets} セット`
-          : `セット ${phase.set} / ${phase.totalSets}`
+          ? I18n.format(t().totalSets, { total: phase.totalSets })
+          : I18n.format(t().setCounter, { set: phase.set, total: phase.totalSets })
       setBodyPhase(phase.type)
     }
 
@@ -377,7 +441,7 @@
     applyConfigToInputs(settings.config)
     elements.soundToggle.checked = settings.soundEnabled
 
-    renderPresetButtons()
+    applyLanguage(settings.language)
     renderTotalPreview()
 
     for (const input of Object.values(elements.inputs)) {

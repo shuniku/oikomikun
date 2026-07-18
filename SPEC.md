@@ -23,6 +23,7 @@
 | F-08 | 設定値を localStorage に保存し、次回起動時に復元する |
 | F-09 | タイマー動作中は画面をスリープさせない（Wake Lock API、対応ブラウザのみ） |
 | F-10 | サウンドのON/OFFを切り替えられる |
+| F-11 | 表示言語を 日本語 / English / 中文 から切り替えられる。初回はブラウザ言語から自動判定（非対応言語は英語）し、選択は保存・復元される |
 
 ### 2.2 非機能要件
 
@@ -58,7 +59,8 @@
 
 ### 3.1 設定画面（初期表示）
 
-- アプリ名「追い込みくん」を丸ゴシック系のポップな書体・アクセント色で表示（サブタイトルなし。書体は OS 標準フォントのみ使用）
+- 言語切替ボタン（日本語 / English / 中文。各言語自身の表記で常に表示）
+- アプリ名「追い込みくん」を丸ゴシック系のポップな書体・アクセント色で表示（サブタイトルなし。書体は OS 標準フォントのみ使用。アプリ名は全言語共通のブランド表記とし翻訳しない）
 - 準備 / 運動 / 休憩 / セット数 の数値入力
 - プリセットボタン: マイセット (240/180×6、準備5秒)、タバタ (20/10×8)、HIIT標準 (30/15×10)、スプリント (45/15×6)
   - マイセットは最も利用頻度が高いプリセットのため先頭に表示する
@@ -96,24 +98,35 @@
 ├── image/apple-touch-icon.png  # ホーム画面追加用アイコン（180×180）
 ├── image/icon-192.png   # PWA アイコン
 ├── image/icon-512.png   # PWA アイコン
-├── js/timer.js          # タイマーロジック（純粋関数のみ・DOM非依存）
-├── js/app.js            # UI制御・音声・Wake Lock・localStorage・SW登録
+├── js/timer.js          # タイマーロジック（純粋関数のみ・DOM非依存・言語非依存）
+├── js/i18n.js           # UI文言の辞書（ja/en/zh）と整形ヘルパー
+├── js/app.js            # UI制御・音声・Wake Lock・localStorage・SW登録・言語切替
 ├── test/timer.test.js   # ロジックのユニットテスト（node --test）
-└── e2e/timer.spec.mjs   # UI の E2E テスト（Playwright）
+├── test/i18n.test.js    # 辞書の整合性テスト（全言語のキー構造一致など）
+└── e2e/*.spec.mjs       # UI の E2E テスト（Playwright）
 ```
 
 ### 4.2 タイマーロジック（js/timer.js）
 
 すべて純粋関数・イミュータブル。状態の変更は常に新しいオブジェクトを返す。
 
-- `validateConfig(config)` — 設定値を検証し `{ isValid, errors }` を返す
+- `validateConfig(config)` — 設定値を検証し `{ isValid, errors }` を返す。errors は言語非依存の構造化データ `[{ field, min, max }]` で、メッセージ文言への変換は表示層（app.js + i18n.js）が行う
 - `buildSchedule(config)` — 設定からフェーズ配列を生成する
   - 例: `[{type:'prepare', durationMs}, {type:'work', set:1, ...}, {type:'rest', set:1, ...}, ... {type:'work', set:N, ...}]`
   - 準備時間 0 のとき prepare フェーズは含めない。最終セットの後に rest は付けない
 - `createInitialState(schedule)` — 初期状態 `{ phaseIndex, phaseRemainingMs, isFinished }` を返す
 - `advance(schedule, state, deltaMs)` — 経過時間を適用した新しい状態を返す。フェーズをまたぐ余剰時間は次フェーズへ繰り越す
 - `totalDurationMs(schedule)` / `elapsedMs(schedule, state)` — 進捗バー用
-- `PRESETS` — プリセット定義
+- `PRESETS` — プリセット定義（id と config のみ。表示名は i18n 側で id から解決）
+
+### 4.2.1 多言語対応（js/i18n.js）
+
+- 対応言語: 日本語（ja）/ English（en）/ 中文（zh、簡体字）
+- すべての UI 文言は `js/i18n.js` の辞書 `MESSAGES` に置き、app.js に直書きしない
+- プレースホルダは `{name}` 形式で `format()` により置換する
+- 言語選択は localStorage の設定に含めて保存。初回は `navigator.language` から判定（ja→ja、zh→zh、それ以外→en）
+- 切替時は `html` の `lang` 属性と `document.title` も更新する
+- アプリ名「追い込みくん」は翻訳しない（ブランド表記）
 
 ### 4.3 時間管理（js/app.js）
 

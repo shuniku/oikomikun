@@ -39,10 +39,11 @@ push すると GitHub Actions（.github/workflows/test.yml）でユニット・E
 
 ## アーキテクチャ
 
-ロジックと UI を厳格に分離した 2 層構成:
+ロジック・文言・UI を分離した 3 層構成:
 
-- **js/timer.js** — コアロジック。純粋関数のみ・イミュータブル・DOM 非依存。状態遷移は `advance(schedule, state, deltaMs)` が新しい state オブジェクトを返す形で行う。UMD 形式でエクスポートし、ブラウザでは `window.HiitTimer`、Node.js では `require('../js/timer.js')` として同一コードを共有する（`file://` では ES Modules が CORS で動かないための設計）。
-- **js/app.js** — UI 制御・Web Audio API による音声合成・Wake Lock・localStorage。タイマーの計算は一切持たず、すべて `HiitTimer` に委譲する。IIFE で包み、`index.html` から通常の `<script>` タグで timer.js → app.js の順に読み込む。
+- **js/timer.js** — コアロジック。純粋関数のみ・イミュータブル・DOM 非依存・**言語非依存**。状態遷移は `advance(schedule, state, deltaMs)` が新しい state オブジェクトを返す形で行う。`validateConfig` のエラーは構造化データ `[{ field, min, max }]` で返す（文言化は表示層の仕事）。UMD 形式でエクスポートし、ブラウザでは `window.HiitTimer`、Node.js では `require('../js/timer.js')` として同一コードを共有する（`file://` では ES Modules が CORS で動かないための設計）。
+- **js/i18n.js** — 3 言語（ja / en / zh）の UI 文言辞書 `MESSAGES` と整形ヘルパー（`format` / `detectLanguage` / `presetLabel`）。timer.js と同じ UMD 形式（`window.HiitI18n`）。
+- **js/app.js** — UI 制御・Web Audio API による音声合成・Wake Lock・localStorage・SW 登録・言語切替。タイマーの計算は `HiitTimer` に、文言は `HiitI18n` に委譲する。IIFE で包み、`index.html` から通常の `<script>` タグで timer.js → i18n.js → app.js の順に読み込む。
 
 時間管理の要点（SPEC.md N-04）: 残り時間は `setInterval` のティック回数ではなく `performance.now()` の差分から算出する。バックグラウンドでタブが間引かれても、復帰時に `advance` が余剰時間をフェーズをまたいで繰り越すことで正しい残り時間に追いつく。
 
@@ -51,6 +52,7 @@ push すると GitHub Actions（.github/workflows/test.yml）でユニット・E
 - timer.js に DOM・副作用・可変状態を持ち込まない。新しいロジックは純粋関数として timer.js に追加し、test/timer.test.js にテストを書く（AAA パターン）。
 - app.js 内でも timer.js の state は直接変更せず、常に `advance` 等の戻り値で置き換える。
 - 設定値のバリデーション範囲（CONFIG_LIMITS）を変更する場合は、SPEC.md §2.3、index.html の input 属性（min/max）、timer.js の三箇所を同期させる。
-- プリセットの追加・変更は timer.js の `PRESETS` 配列のみで完結する（ボタンは app.js が動的生成）。ただし SPEC.md §3.1 のプリセット一覧も同期させる。
+- プリセットの追加・変更は timer.js の `PRESETS` 配列（id と config）と i18n.js の全言語の `presetNames` の両方を更新する（ボタンは app.js が動的生成）。SPEC.md §3.1 のプリセット一覧も同期させる。
+- UI 文言を追加・変更するときは i18n.js の **3 言語すべて**の辞書を更新する。キー構造の不一致は test/i18n.test.js が検出する。静的 HTML の文言は `data-i18n` 属性でキーを紐づける。
 - 音声は Web Audio API の OscillatorNode で合成する。`AudioContext` はユーザー操作（スタートボタン）を起点に生成する（自動再生制限対策）。
 - UI 文言・コメントは日本語。

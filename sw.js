@@ -9,13 +9,14 @@
  */
 'use strict'
 
-const CACHE_NAME = 'oikomikun-v1'
+const CACHE_NAME = 'oikomikun-v2'
 
 const ASSETS = [
   '.',
   'index.html',
   'css/style.css',
   'js/timer.js',
+  'js/i18n.js',
   'js/app.js',
   'image/favicon.svg',
   'image/apple-touch-icon.png',

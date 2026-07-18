@@ -17,40 +17,38 @@
   const MS_PER_SEC = 1000
 
   const CONFIG_LIMITS = {
-    prepareSec: { min: 0, max: 300, label: '準備時間' },
-    workSec: { min: 1, max: 3600, label: '運動時間' },
-    restSec: { min: 0, max: 3600, label: '休憩時間' },
-    sets: { min: 1, max: 99, label: 'セット数' },
+    prepareSec: { min: 0, max: 300 },
+    workSec: { min: 1, max: 3600 },
+    restSec: { min: 0, max: 3600 },
+    sets: { min: 1, max: 99 },
   }
 
   const DEFAULT_CONFIG = Object.freeze({ prepareSec: 10, workSec: 20, restSec: 10, sets: 8 })
 
+  /** 表示名は言語依存のため持たない（js/i18n.js の presetNames が id をキーに解決する） */
   const PRESETS = Object.freeze([
     Object.freeze({
       id: 'personal',
-      label: 'マイセット 240/180 ×6',
       config: Object.freeze({ prepareSec: 5, workSec: 240, restSec: 180, sets: 6 }),
     }),
     Object.freeze({
       id: 'tabata',
-      label: 'タバタ 20/10 ×8',
       config: Object.freeze({ prepareSec: 10, workSec: 20, restSec: 10, sets: 8 }),
     }),
     Object.freeze({
       id: 'hiit-standard',
-      label: 'HIIT標準 30/15 ×10',
       config: Object.freeze({ prepareSec: 10, workSec: 30, restSec: 15, sets: 10 }),
     }),
     Object.freeze({
       id: 'sprint',
-      label: 'スプリント 45/15 ×6',
       config: Object.freeze({ prepareSec: 10, workSec: 45, restSec: 15, sets: 6 }),
     }),
   ])
 
   /**
    * 設定値を検証する。
-   * @returns {{ isValid: boolean, errors: string[] }}
+   * エラーは言語非依存の構造化データで返し、メッセージ文言への変換は表示層（app.js + i18n.js）が担う。
+   * @returns {{ isValid: boolean, errors: Array<{ field: string, min: number, max: number }> }}
    */
   function validateConfig(config) {
     const errors = Object.entries(CONFIG_LIMITS)
@@ -58,7 +56,7 @@
         const value = config ? config[key] : undefined
         return !Number.isInteger(value) || value < limit.min || value > limit.max
       })
-      .map(([, limit]) => `${limit.label}は ${limit.min}〜${limit.max} の整数で入力してください`)
+      .map(([key, limit]) => ({ field: key, min: limit.min, max: limit.max }))
 
     return { isValid: errors.length === 0, errors }
   }
