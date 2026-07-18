@@ -6,17 +6,27 @@
 }
 
 :root {
-  --color-text: #f5f5f7;
-  --color-text-dim: rgba(245, 245, 247, 0.65);
+  --color-text: #f7f7fa;
+  --color-text-dim: rgba(247, 247, 250, 0.72);
   --color-surface: rgba(255, 255, 255, 0.08);
-  --color-surface-strong: rgba(255, 255, 255, 0.16);
+  --color-surface-strong: rgba(255, 255, 255, 0.18);
+  --color-border: rgba(255, 255, 255, 0.14);
   --color-accent: #ffd166;
+  --color-accent-bright: #ffdf8f;
+  --color-on-accent: #241d05;
   --color-danger: #ff6b6b;
-  --bg-idle: #1a1a2e;
+  --bg-idle: #16162b;
   --bg-prepare: #1d4ed8;
   --bg-work: #dc2626;
   --bg-rest: #15803d;
   --bg-finished: #312e81;
+  /* モーション: 状態変化は短く・素早く減速 */
+  --duration-press: 120ms;
+  --duration-pop: 350ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  /* 角丸の基準（入れ子は「外側 = 内側 + 余白」で揃える） */
+  --radius-control: 12px;
+  --radius-cta: 16px;
 }
 
 html, body {
@@ -24,11 +34,30 @@ html, body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   color: var(--color-text);
   background-color: var(--bg-idle);
-  transition: background-color 0.4s ease;
+  transition-property: background-color;
+  transition-duration: 0.4s;
+  transition-timing-function: ease;
   -webkit-tap-highlight-color: transparent;
+  /* 背景ビネット（::before, z-index:-1）を背景色より手前・内容より奥に重ねるため */
+  isolation: isolate;
+}
+
+/* 奥行きのためのビネット: 上からの淡い光と下方向のシェード。
+   フェーズの背景色はこの下で transition するため色の意味は変わらない */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(255, 255, 255, 0.1), transparent 60%),
+    radial-gradient(140% 90% at 50% 115%, rgba(0, 0, 0, 0.35), transparent 60%);
 }
 
 /* フェーズごとの背景色 */
@@ -58,8 +87,17 @@ body.phase-finished { background-color: var(--bg-finished); }
 /* ===== 設定画面 ===== */
 .app-title {
   text-align: center;
-  font-size: 1.8rem;
-  letter-spacing: 0.12em;
+  /* ポップな印象の丸ゴシック系。OS 標準フォントのみ（オフライン制約のため Web フォント不使用）。
+     ui-rounded は Apple 環境の英数字用、日本語はヒラギノ丸ゴ等にフォールバックする */
+  font-family: ui-rounded, "Hiragino Maru Gothic ProN", "Hiragino Maru Gothic Pro",
+    "HG丸ｺﾞｼｯｸM-PRO", "Yu Gothic", system-ui, sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--color-accent);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  text-wrap: balance;
+  margin-bottom: 4px;
 }
 
 .preset-row {
@@ -69,18 +107,28 @@ body.phase-finished { background-color: var(--bg-finished); }
 }
 
 .preset-btn {
-  border: 1px solid var(--color-surface-strong);
+  min-height: 44px;
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   padding: 10px 8px;
+  font-family: inherit;
   font-size: 0.85rem;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  transition-property: transform, background-color, border-color;
+  transition-duration: var(--duration-press);
+  transition-timing-function: var(--ease-out);
 }
 
 .preset-btn:active {
   background: var(--color-surface-strong);
+  transform: scale(0.97);
 }
 
 .setup-form {
@@ -96,24 +144,48 @@ body.phase-finished { background-color: var(--bg-finished); }
 }
 
 .field label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   color: var(--color-text-dim);
+  padding-left: 2px;
 }
 
 .field input {
+  font-family: inherit;
   font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
   padding: 12px;
-  border-radius: 12px;
-  border: 1px solid var(--color-surface-strong);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
   color: var(--color-text);
   width: 100%;
   text-align: center;
+  transition-property: border-color, background-color;
+  transition-duration: var(--duration-press);
+  transition-timing-function: var(--ease-out);
+}
+
+/* 数値入力のスピンボタンを隠し、盤面をすっきりさせる（値はタップ＋キーボードで入力） */
+.field input::-webkit-outer-spin-button,
+.field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.field input {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .field input:focus {
   outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
   border-color: transparent;
+  background: var(--color-surface-strong);
 }
 
 .total-preview {
@@ -125,6 +197,7 @@ body.phase-finished { background-color: var(--bg-finished); }
 .total-preview span {
   color: var(--color-text);
   font-size: 1.3rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -132,48 +205,122 @@ body.phase-finished { background-color: var(--bg-finished); }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
+  min-height: 44px;
+  align-self: center;
+  padding: 0 16px;
   color: var(--color-text-dim);
   font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .sound-toggle input {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   accent-color: var(--color-accent);
+  cursor: pointer;
 }
 
 .error-box {
-  background: rgba(255, 107, 107, 0.15);
+  background: rgba(180, 30, 30, 0.35);
   border: 1px solid var(--color-danger);
-  color: var(--color-danger);
-  border-radius: 12px;
-  padding: 12px;
+  color: #ffd7d7;
+  border-radius: var(--radius-control);
+  padding: 12px 16px;
   font-size: 0.9rem;
+  line-height: 1.5;
   white-space: pre-line;
+  animation: error-in var(--duration-pop) var(--ease-out);
+}
+
+@keyframes error-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ===== ボタン ===== */
 .btn {
+  min-height: 56px;
+  font-family: inherit;
   font-size: 1.2rem;
   font-weight: 700;
+  letter-spacing: 0.04em;
   padding: 16px;
-  border-radius: 16px;
+  border-radius: var(--radius-cta);
   border: none;
   cursor: pointer;
-  color: #1a1a2e;
-  background: var(--color-accent);
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  color: var(--color-on-accent);
+  background: linear-gradient(180deg, var(--color-accent-bright), var(--color-accent));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 10px 24px -10px rgba(0, 0, 0, 0.5);
+  transition-property: transform, filter, box-shadow, background-color;
+  transition-duration: var(--duration-press);
+  transition-timing-function: var(--ease-out);
 }
 
 .btn:active {
-  filter: brightness(0.9);
+  transform: translateY(1px) scale(0.98);
+  filter: brightness(0.94);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 4px 12px -6px rgba(0, 0, 0, 0.4);
 }
 
 .btn-ghost {
   background: var(--color-surface);
   color: var(--color-text);
-  border: 1px solid var(--color-surface-strong);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+}
+
+.btn-ghost:active {
+  background: var(--color-surface-strong);
+  filter: none;
+}
+
+/* キーボード操作時のフォーカスリング（背景色が変わっても見える白リング） */
+.btn:focus-visible,
+.preset-btn:focus-visible,
+.sound-toggle input:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 3px;
+}
+
+/* ホバー環境（PC）のみの反応。タッチでのホバー固着を避ける */
+@media (hover: hover) {
+  .preset-btn:hover {
+    background: var(--color-surface-strong);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .field input:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .btn:hover {
+    filter: brightness(1.05);
+  }
+
+  .btn-ghost:hover {
+    filter: none;
+    background: var(--color-surface-strong);
+  }
 }
 
 /* ===== タイマー画面 ===== */
@@ -192,19 +339,64 @@ body.phase-finished { background-color: var(--bg-finished); }
   font-size: clamp(5rem, 28vw, 11rem);
   font-weight: 800;
   line-height: 1.1;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 0.04em 0.25em rgba(0, 0, 0, 0.25);
 }
 
 .set-counter {
   font-size: clamp(1.1rem, 5vw, 1.6rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   color: var(--color-text-dim);
+}
+
+/* フェーズ切替時にラベルと残り時間を軽くポップさせる（CSS のみ）。
+   同じ animation-name のままではクラスが変わっても再生し直されないため、
+   遷移で必ず名前が交互に切り替わるよう、同内容のキーフレームを 2 種類用意する。
+   フェーズ順は 準備(A)→運動(B)→休憩(A)→運動(B)→…→完了(A) となり常に A⇄B が交互になる */
+body.phase-prepare .phase-label,
+body.phase-prepare .time-display,
+body.phase-rest .phase-label,
+body.phase-rest .time-display,
+body.phase-finished .phase-label,
+body.phase-finished .time-display {
+  animation: phase-pop-a var(--duration-pop) var(--ease-out);
+}
+
+body.phase-work .phase-label,
+body.phase-work .time-display {
+  animation: phase-pop-b var(--duration-pop) var(--ease-out);
+}
+
+@keyframes phase-pop-a {
+  from {
+    transform: scale(0.92);
+    opacity: 0.3;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes phase-pop-b {
+  from {
+    transform: scale(0.92);
+    opacity: 0.3;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 .progress-track {
   margin-top: 16px;
-  height: 10px;
+  height: 12px;
   border-radius: 999px;
-  background: var(--color-surface);
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 
@@ -212,8 +404,11 @@ body.phase-finished { background-color: var(--bg-finished); }
   height: 100%;
   width: 0%;
   border-radius: 999px;
-  background: var(--color-accent);
-  transition: width 0.2s linear;
+  background: linear-gradient(180deg, var(--color-accent-bright), var(--color-accent));
+  box-shadow: 0 0 12px rgba(255, 209, 102, 0.45);
+  transition-property: width;
+  transition-duration: 0.2s;
+  transition-timing-function: linear;
 }
 
 .control-row {
@@ -221,6 +416,17 @@ body.phase-finished { background-color: var(--bg-finished); }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+/* ===== モーション低減設定への配慮 ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ===== タブレット・PC（N-03: 離れた場所からの視認性を優先） ===== */
@@ -269,7 +475,7 @@ body.phase-finished { background-color: var(--bg-finished); }
   }
 
   .progress-track {
-    height: 0.6rem;
+    height: 0.7rem;
   }
 
   .time-display {
