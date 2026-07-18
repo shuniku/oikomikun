@@ -346,6 +346,18 @@
     }
   }
 
+  // ===== Service Worker（公開ページのオフライン動作用） =====
+
+  function registerServiceWorker() {
+    // file:// で直接開いた場合は serviceWorker 自体が存在しない（その場合も元々オフラインで動く）
+    if (!('serviceWorker' in navigator)) {
+      return
+    }
+    navigator.serviceWorker.register('sw.js').catch((error) => {
+      console.warn('Service Worker の登録に失敗しました', error)
+    })
+  }
+
   // ===== イベント登録・初期化 =====
 
   function handleStartClick() {
@@ -378,6 +390,8 @@
     elements.startButton.addEventListener('click', handleStartClick)
     elements.pauseButton.addEventListener('click', togglePause)
     elements.resetButton.addEventListener('click', resetTimer)
+
+    registerServiceWorker()
   }
 
   init()

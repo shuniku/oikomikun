@@ -4,9 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#1a1a2e">
+  <meta name="description" content="筋トレ用HIITタイマー「追い込みくん」。準備・運動・休憩を自動で回す、オフラインでも動くWebアプリ。">
+  <!-- OGP: SNS共有時のプレビュー用メタデータ。クローラーだけが参照するため
+       絶対URLだがオフライン動作（N-01）には影響しない -->
+  <meta property="og:title" content="追い込みくん | HIITタイマー">
+  <meta property="og:description" content="筋トレ用HIITタイマー。準備・運動・休憩を自動で回す、インストール不要のWebアプリ。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://shuniku.github.io/oikomikun/">
+  <meta property="og:image" content="https://shuniku.github.io/oikomikun/image/icon-512.png">
+  <meta name="twitter:card" content="summary">
   <title>追い込みくん | HIITタイマー</title>
   <link rel="icon" type="image/svg+xml" href="image/favicon.svg">
   <link rel="apple-touch-icon" href="image/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="phase-idle">
@@ -51,7 +61,7 @@
 
     <!-- タイマー画面 -->
     <section id="timer-screen" class="screen" hidden>
-      <p id="phase-label" class="phase-label">準備</p>
+      <p id="phase-label" class="phase-label" aria-live="polite">準備</p>
       <p id="time-display" class="time-display">00:10</p>
       <p id="set-counter" class="set-counter">セット 0 / 8</p>
 

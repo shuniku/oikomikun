@@ -40,11 +40,21 @@ open oikomikun/index.html
 
 ### テスト
 
-Node.js（組み込みの `node --test`）で実行します。
+ユニットテストは Node.js 組み込みのテストランナーで実行します。
 
 ```bash
 node --test
 ```
+
+UI の E2E テストは Playwright で実行します（初回のみセットアップが必要）。
+
+```bash
+npm install
+npx playwright install chromium
+npm run test:e2e
+```
+
+push すると GitHub Actions で両方が自動実行されます。
 
 ### デプロイ
 

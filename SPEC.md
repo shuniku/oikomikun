@@ -89,12 +89,17 @@
 ├── SPEC.md              # 本仕様書
 ├── README.md            # 利用者・開発者向け概要
 ├── index.html           # エントリポイント
+├── manifest.webmanifest # PWA マニフェスト
+├── sw.js                # Service Worker（公開ページのオフライン動作用）
 ├── css/style.css        # スタイル
 ├── image/favicon.svg    # ファビコン（SVG）
 ├── image/apple-touch-icon.png  # ホーム画面追加用アイコン（180×180）
+├── image/icon-192.png   # PWA アイコン
+├── image/icon-512.png   # PWA アイコン
 ├── js/timer.js          # タイマーロジック（純粋関数のみ・DOM非依存）
-├── js/app.js            # UI制御・音声・Wake Lock・localStorage
-└── test/timer.test.js   # ロジックのユニットテスト（node --test）
+├── js/app.js            # UI制御・音声・Wake Lock・localStorage・SW登録
+├── test/timer.test.js   # ロジックのユニットテスト（node --test）
+└── e2e/timer.spec.mjs   # UI の E2E テスト（Playwright）
 ```
 
 ### 4.2 タイマーロジック（js/timer.js）
@@ -129,9 +134,10 @@ Web Audio API の `OscillatorNode` でビープ音を合成する。
 
 ## 5. テスト
 
-- 対象: `js/timer.js` の全純粋関数（`node --test` で実行）
-- UI（app.js）はブラウザでの手動確認とする
-  - 確認項目: 開始/一時停止/再開/リセット、フェーズ遷移と背景色、音、設定の保存/復元、スマホ表示
+- ユニットテスト: `js/timer.js` の全純粋関数（`node --test` で実行）
+- E2E テスト: 画面切替・フェーズ遷移・入力検証・設定復元など（Playwright、`npm run test:e2e` で実行）
+- push 時に GitHub Actions で両方を自動実行する
+- 音・Wake Lock・実機のスマホ表示はブラウザでの手動確認とする
 
 ## 6. 配信
 
@@ -140,3 +146,4 @@ GitHub Pages で公開する。
 - ビルド工程がないため、`main` ブランチのリポジトリルートをそのまま配信する
 - N-01（完全オフライン動作）は公開後も維持する。`file://` で開く利用方法と GitHub Pages 経由の利用方法の両方をサポートする
 - プロジェクトサイトは `https://<ユーザー名>.github.io/<リポジトリ名>/` 配下で配信されるため、アセット参照は相対パスとする
+- PWA として提供する: manifest によりホーム画面へスタンドアロン表示でインストールでき、Service Worker（ネットワーク優先・キャッシュフォールバック）により公開ページ経由でも 2 回目以降は完全オフラインで起動する
