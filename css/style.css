@@ -483,3 +483,67 @@ body.phase-work .time-display {
     font-size: min(clamp(11rem, 22vw, 18rem), 40vh);
   }
 }
+
+/* ===== PC・タブレット横向き: 専用レイアウト =====
+   スマートフォン（および縦向き）は縦一列のまま。横向きの広い画面では
+   設定画面を横並びに、タイマー画面を「時間が主役・操作は右」の2カラムに分ける */
+@media (min-width: 768px) and (orientation: landscape) {
+  /* --- 設定画面: プリセット・入力欄を1行4列に --- */
+  #setup-screen {
+    max-width: 56rem;
+  }
+
+  .preset-row,
+  .setup-form {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  #btn-start {
+    align-self: center;
+    width: 100%;
+    max-width: 22rem;
+  }
+
+  /* --- タイマー画面: 残り時間を左に大きく、フェーズ・セット・操作を右に --- */
+  #timer-screen {
+    max-width: min(92vw, 72rem);
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    grid-template-areas:
+      "time phase"
+      "time counter"
+      "time controls"
+      "progress progress";
+    align-items: center;
+    align-content: center;
+    column-gap: 3rem;
+    row-gap: 1rem;
+  }
+
+  .time-display {
+    grid-area: time;
+    /* 18vw: 左カラム幅に「00:00」が収まる上限 / 52vh: 縦あふれ防止 */
+    font-size: min(18vw, 52vh);
+  }
+
+  .phase-label {
+    grid-area: phase;
+    align-self: end;
+  }
+
+  .set-counter {
+    grid-area: counter;
+    align-self: start;
+  }
+
+  .control-row {
+    grid-area: controls;
+    grid-template-columns: 1fr;
+    margin-top: 1rem;
+  }
+
+  .progress-track {
+    grid-area: progress;
+    margin-top: 1.5rem;
+  }
+}
