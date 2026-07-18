@@ -33,6 +33,14 @@ html, body {
   height: 100%;
 }
 
+/* hidden 属性を確実に効かせる。
+   .screen 等の display 指定（flex/grid）はブラウザ標準の [hidden]{display:none} を
+   上書きしてしまうため、!important で常に非表示を優先する。
+   これによりタイマー稼働中は設定画面（プリセット・時間入力）が完全に隠れる */
+[hidden] {
+  display: none !important;
+}
+
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
   -webkit-font-smoothing: antialiased;
