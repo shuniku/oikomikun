@@ -87,6 +87,7 @@
 ```
 /
 ├── SPEC.md              # 本仕様書
+├── README.md            # 利用者・開発者向け概要
 ├── index.html           # エントリポイント
 ├── css/style.css        # スタイル
 ├── js/timer.js          # タイマーロジック（純粋関数のみ・DOM非依存）
