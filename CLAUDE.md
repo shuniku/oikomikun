@@ -52,7 +52,8 @@ push すると GitHub Actions（.github/workflows/test.yml）でユニット・E
 - timer.js に DOM・副作用・可変状態を持ち込まない。新しいロジックは純粋関数として timer.js に追加し、test/timer.test.js にテストを書く（AAA パターン）。
 - app.js 内でも timer.js の state は直接変更せず、常に `advance` 等の戻り値で置き換える。
 - 設定値のバリデーション範囲（CONFIG_LIMITS）を変更する場合は、SPEC.md §2.3、index.html の input 属性（min/max）、timer.js の三箇所を同期させる。
-- プリセットの追加・変更は timer.js の `PRESETS` 配列（id と config）と i18n.js の全言語の `presetNames` の両方を更新する（ボタンは app.js が動的生成）。SPEC.md §3.1 のプリセット一覧も同期させる。
+- プリセットの追加・変更は timer.js の `PRESETS` 配列（id と config）と i18n.js の全言語の `presetNames` の両方を更新する（ボタンは app.js が動的生成）。SPEC.md §3.1 のプリセット一覧も同期させる。マイセット（id: `personal`）は例外で、timer.js の値は既定値にすぎず、ユーザー保存値（localStorage の `personalConfig`）が表示時に優先される（app.js の `getPresets()`）。
+- `loadSettings()` の返り値にフィールドを足すときは、**localStorage が空の場合と JSON 破損時の両方の早期 return にも必ず同じフィールドを追加する**（追加漏れで初回訪問時のみ undefined になるバグが実際に起きた）。
 - UI 文言を追加・変更するときは i18n.js の **3 言語すべて**の辞書を更新する。キー構造の不一致は test/i18n.test.js が検出する。静的 HTML の文言は `data-i18n` 属性でキーを紐づける。
 - 音声は Web Audio API の OscillatorNode で合成する。`AudioContext` はユーザー操作（スタートボタン）を起点に生成する（自動再生制限対策）。
 - UI 文言・コメントは日本語。

@@ -77,6 +77,37 @@ test('プリセットをタップすると入力欄に反映される', async ({
   await expect(page.locator('#input-sets')).toHaveValue('8')
 })
 
+test('マイセットを現在の設定で上書き保存でき、再読み込み後も保持される', async ({ page }) => {
+  await page.goto('/')
+  await fillConfig(page, { prepare: 2, work: 50, rest: 25, sets: 4 })
+
+  await page.click('#btn-save-personal')
+
+  const personalButton = page.locator('.preset-btn').first()
+  await expect(personalButton).toHaveText('マイセット 50/25 ×4')
+
+  await page.reload()
+  await expect(page.locator('.preset-btn').first()).toHaveText('マイセット 50/25 ×4')
+
+  // 別の値にした後マイセットをタップすると保存値が復元される
+  await page.click('.preset-btn:has-text("タバタ")')
+  await page.click('.preset-btn:has-text("マイセット")')
+  await expect(page.locator('#input-prepare')).toHaveValue('2')
+  await expect(page.locator('#input-work')).toHaveValue('50')
+  await expect(page.locator('#input-rest')).toHaveValue('25')
+  await expect(page.locator('#input-sets')).toHaveValue('4')
+})
+
+test('不正な入力ではマイセットに保存されない', async ({ page }) => {
+  await page.goto('/')
+  await fillConfig(page, { prepare: 10, work: 0, rest: 10, sets: 8 })
+
+  await page.click('#btn-save-personal')
+
+  await expect(page.locator('#error-box')).toBeVisible()
+  await expect(page.locator('.preset-btn').first()).toHaveText('マイセット 240/180 ×6')
+})
+
 test('不正な入力ではエラーを表示して開始しない', async ({ page }) => {
   await page.goto('/')
   await fillConfig(page, { prepare: 10, work: 0, rest: 10, sets: 8 })

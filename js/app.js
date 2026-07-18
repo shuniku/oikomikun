@@ -27,6 +27,7 @@
     soundToggle: document.getElementById('input-sound'),
     totalPreview: document.getElementById('total-preview'),
     errorBox: document.getElementById('error-box'),
+    savePersonalButton: document.getElementById('btn-save-personal'),
     startButton: document.getElementById('btn-start'),
     pauseButton: document.getElementById('btn-pause'),
     resetButton: document.getElementById('btn-reset'),
@@ -45,6 +46,19 @@
   /** 直近の検証エラー（言語切替時にメッセージを再翻訳するため保持） */
   let lastErrors = []
 
+  /** マイセット（id: 'personal'）の既定値。timer.js の定義から取得する */
+  const DEFAULT_PERSONAL_CONFIG = Timer.PRESETS.find((preset) => preset.id === 'personal').config
+
+  /** ユーザーが上書き保存したマイセットの設定値 */
+  let personalConfig = DEFAULT_PERSONAL_CONFIG
+
+  /** マイセットをユーザー保存値で差し替えたプリセット一覧を返す（timer.js の定義は不変のまま） */
+  function getPresets() {
+    return Timer.PRESETS.map((preset) =>
+      preset.id === 'personal' ? { ...preset, config: personalConfig } : preset
+    )
+  }
+
   /** 現在言語の文言辞書を返す */
   function t() {
     return I18n.MESSAGES[currentLanguage]
@@ -57,17 +71,35 @@
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
       if (!raw) {
-        return { config: Timer.DEFAULT_CONFIG, soundEnabled: true, language: defaultLanguage }
+        return {
+          config: Timer.DEFAULT_CONFIG,
+          soundEnabled: true,
+          language: defaultLanguage,
+          personalConfig: DEFAULT_PERSONAL_CONFIG,
+        }
       }
       const parsed = JSON.parse(raw)
       const config = Timer.validateConfig(parsed.config).isValid
         ? parsed.config
         : Timer.DEFAULT_CONFIG
       const language = I18n.LANGUAGES.includes(parsed.language) ? parsed.language : defaultLanguage
-      return { config, soundEnabled: parsed.soundEnabled !== false, language }
+      const savedPersonalConfig = Timer.validateConfig(parsed.personalConfig).isValid
+        ? parsed.personalConfig
+        : DEFAULT_PERSONAL_CONFIG
+      return {
+        config,
+        soundEnabled: parsed.soundEnabled !== false,
+        language,
+        personalConfig: savedPersonalConfig,
+      }
     } catch (error) {
       console.warn('設定の読み込みに失敗したためデフォルト値を使用します', error)
-      return { config: Timer.DEFAULT_CONFIG, soundEnabled: true, language: defaultLanguage }
+      return {
+        config: Timer.DEFAULT_CONFIG,
+        soundEnabled: true,
+        language: defaultLanguage,
+        personalConfig: DEFAULT_PERSONAL_CONFIG,
+      }
     }
   }
 
@@ -81,6 +113,7 @@
         config,
         soundEnabled: elements.soundToggle.checked,
         language: currentLanguage,
+        personalConfig,
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
     } catch (error) {
@@ -132,10 +165,10 @@
     elements.errorBox.hidden = errors.length === 0
   }
 
-  /** 言語切替時にも呼び直すため、毎回作り直す */
+  /** 言語切替・マイセット保存時にも呼び直すため、毎回作り直す */
   function renderPresetButtons() {
     elements.presetRow.replaceChildren()
-    for (const preset of Timer.PRESETS) {
+    for (const preset of getPresets()) {
       const button = document.createElement('button')
       button.type = 'button'
       button.className = 'preset-btn'
@@ -148,6 +181,21 @@
       })
       elements.presetRow.appendChild(button)
     }
+  }
+
+  // ===== マイセットの上書き保存 =====
+
+  function handleSavePersonalClick() {
+    const config = readConfigFromInputs()
+    const result = Timer.validateConfig(config)
+    if (!result.isValid) {
+      showErrors(result.errors)
+      return
+    }
+    personalConfig = config
+    showErrors([])
+    renderPresetButtons()
+    saveSettings()
   }
 
   // ===== 言語切替 =====
@@ -438,6 +486,7 @@
 
   function init() {
     const settings = loadSettings()
+    personalConfig = settings.personalConfig
     applyConfigToInputs(settings.config)
     elements.soundToggle.checked = settings.soundEnabled
 
@@ -451,6 +500,7 @@
       })
     }
     elements.soundToggle.addEventListener('change', saveSettings)
+    elements.savePersonalButton.addEventListener('click', handleSavePersonalClick)
     elements.startButton.addEventListener('click', handleStartClick)
     elements.pauseButton.addEventListener('click', togglePause)
     elements.resetButton.addEventListener('click', resetTimer)
