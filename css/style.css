@@ -1,0 +1,279 @@
+/* ===== ベース ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color-text: #f5f5f7;
+  --color-text-dim: rgba(245, 245, 247, 0.65);
+  --color-surface: rgba(255, 255, 255, 0.08);
+  --color-surface-strong: rgba(255, 255, 255, 0.16);
+  --color-accent: #ffd166;
+  --color-danger: #ff6b6b;
+  --bg-idle: #1a1a2e;
+  --bg-prepare: #1d4ed8;
+  --bg-work: #dc2626;
+  --bg-rest: #15803d;
+  --bg-finished: #312e81;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  color: var(--color-text);
+  background-color: var(--bg-idle);
+  transition: background-color 0.4s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* フェーズごとの背景色 */
+body.phase-prepare { background-color: var(--bg-prepare); }
+body.phase-work    { background-color: var(--bg-work); }
+body.phase-rest    { background-color: var(--bg-rest); }
+body.phase-finished { background-color: var(--bg-finished); }
+
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.screen {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+}
+
+/* ===== 設定画面 ===== */
+.app-title {
+  text-align: center;
+  font-size: 1.8rem;
+  letter-spacing: 0.12em;
+}
+
+.preset-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.preset-btn {
+  border: 1px solid var(--color-surface-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 12px;
+  padding: 10px 8px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.preset-btn:active {
+  background: var(--color-surface-strong);
+}
+
+.setup-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+}
+
+.field input {
+  font-size: 1.4rem;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--color-surface-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  width: 100%;
+  text-align: center;
+}
+
+.field input:focus {
+  outline: 2px solid var(--color-accent);
+  border-color: transparent;
+}
+
+.total-preview {
+  text-align: center;
+  color: var(--color-text-dim);
+  font-size: 1rem;
+}
+
+.total-preview span {
+  color: var(--color-text);
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sound-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--color-text-dim);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.sound-toggle input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-accent);
+}
+
+.error-box {
+  background: rgba(255, 107, 107, 0.15);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 0.9rem;
+  white-space: pre-line;
+}
+
+/* ===== ボタン ===== */
+.btn {
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  color: #1a1a2e;
+  background: var(--color-accent);
+}
+
+.btn:active {
+  filter: brightness(0.9);
+}
+
+.btn-ghost {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-surface-strong);
+}
+
+/* ===== タイマー画面 ===== */
+#timer-screen {
+  text-align: center;
+  gap: 8px;
+}
+
+.phase-label {
+  font-size: clamp(1.6rem, 8vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.time-display {
+  font-size: clamp(5rem, 28vw, 11rem);
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.set-counter {
+  font-size: clamp(1.1rem, 5vw, 1.6rem);
+  color: var(--color-text-dim);
+}
+
+.progress-track {
+  margin-top: 16px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--color-accent);
+  transition: width 0.2s linear;
+}
+
+.control-row {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ===== タブレット・PC（N-03: 離れた場所からの視認性を優先） ===== */
+@media (min-width: 768px) {
+  /* rem の基準値をウインドウの幅と高さの両方に連動させる。
+     文字サイズはすべて rem 指定のため、これだけで全要素が同率でスケールする。
+     高さ側（2.6vh）はスクロールを発生させないための上限で、
+     背の低いウインドウでは縮小して常に 1 画面に収める。
+     768px 時点では 16px のままなのでスマートフォン表示と連続する。 */
+  html {
+    font-size: clamp(16px, min(1.35vw, 2.6vh), 24px);
+  }
+
+  /* コンテナ幅・余白・角丸も rem/em に揃えて文字サイズに追従させる */
+  .screen {
+    max-width: 30rem;
+    gap: 1.25rem;
+  }
+
+  #timer-screen {
+    max-width: 60rem;
+  }
+
+  .setup-form,
+  .control-row {
+    gap: 0.75rem;
+  }
+
+  .preset-row {
+    gap: 0.5rem;
+  }
+
+  .preset-btn {
+    padding: 0.75em 0.5em;
+    border-radius: 0.9em;
+  }
+
+  .field input {
+    padding: 0.55em;
+    border-radius: 0.55em;
+  }
+
+  .btn {
+    padding: 0.85em;
+    border-radius: 0.85em;
+  }
+
+  .progress-track {
+    height: 0.6rem;
+  }
+
+  .time-display {
+    /* 40vh の上限により、横長で背の低いウインドウでも縦にあふれない */
+    font-size: min(clamp(11rem, 22vw, 18rem), 40vh);
+  }
+}
