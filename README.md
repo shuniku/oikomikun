@@ -49,3 +49,7 @@ node --test
 ### デプロイ
 
 `main` ブランチにプッシュすると GitHub Pages（リポジトリルート配信）へ自動反映されます。
+
+## ライセンス
+
+[MIT License](LICENSE)
