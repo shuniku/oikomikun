@@ -517,9 +517,12 @@ body.phase-work .time-display {
      文字サイズはすべて rem 指定のため、これだけで全要素が同率でスケールする。
      高さ側（2.6vh）はスクロールを発生させないための上限で、
      背の低いウインドウでは縮小して常に 1 画面に収める。
-     768px 時点では 16px のままなのでスマートフォン表示と連続する。 */
+     768px 時点では 16px のままなのでスマートフォン表示と連続する。
+     上限は 40px（32インチ等の大画面でも #timer-screen の max-width（rem 基準）
+     が早期に頭打ちしてタイマー表示が追従しなくなるのを防ぐため。40px は
+     N-03 の視認性と設定画面の過大化防止のバランスを見た値） */
   html {
-    font-size: clamp(16px, min(1.35vw, 2.6vh), 24px);
+    font-size: clamp(16px, min(1.35vw, 2.6vh), 40px);
   }
 
   /* コンテナ幅・余白・角丸も rem/em に揃えて文字サイズに追従させる */
@@ -590,7 +593,11 @@ body.phase-work .time-display {
   #timer-screen {
     max-width: min(92vw, 72rem);
     display: grid;
-    grid-template-columns: 1.7fr 1fr;
+    /* 右カラムに 16rem の最低幅を保証し、左カラムは minmax(0, ...) で
+       auto の min-content 制約を外す。超ワイド画面で左カラムの巨大な
+       文字幅が右カラム（フェーズ・セット・操作）を圧迫し、日本語が
+       1 文字ずつ縦折れするのを防ぐ */
+    grid-template-columns: minmax(0, 1.7fr) minmax(16rem, 1fr);
     grid-template-areas:
       "time phase"
       "time counter"
@@ -600,28 +607,39 @@ body.phase-work .time-display {
     align-content: center;
     column-gap: 3rem;
     row-gap: 1rem;
+    /* 残り時間のフォントサイズをビューポートではなく実際のカラム幅（cqi）
+       基準にするためのクエリコンテナ */
+    container-type: inline-size;
   }
 
   .time-display {
     grid-area: time;
-    /* 18vw: 左カラム幅に「00:00」が収まる上限 / 52vh: 縦あふれ防止 */
-    font-size: min(18vw, 52vh);
+    min-width: 0;
+    /* 22cqi: コンテナ幅（#timer-screen 全体）基準で左カラムに「00:00」が
+       収まる上限 / 52vh: 縦あふれ防止 */
+    font-size: min(22cqi, 52vh);
   }
 
   .phase-label {
     grid-area: phase;
     align-self: end;
+    white-space: nowrap;
   }
 
   .set-counter {
     grid-area: counter;
     align-self: start;
+    white-space: nowrap;
   }
 
   .control-row {
     grid-area: controls;
     grid-template-columns: 1fr;
     margin-top: 1rem;
+  }
+
+  .control-row .btn {
+    white-space: nowrap;
   }
 
   .progress-track {
