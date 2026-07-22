@@ -10,7 +10,7 @@
 
   const STORAGE_KEY = 'hiit-timer-settings'
   const TICK_INTERVAL_MS = 100
-  const COUNTDOWN_BEEP_FROM_SEC = 3
+  const COUNTDOWN_BEEP_FROM_SEC = 5
 
   const elements = {
     body: document.body,
@@ -278,7 +278,7 @@
     },
 
     phaseStart(type) {
-      this.beep(type === 'work' ? 1320 : 660, 300)
+      this.beep(type === 'work' ? 1320 : 660, 1000)
     },
 
     finish() {
