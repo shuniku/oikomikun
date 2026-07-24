@@ -1,54 +1,62 @@
-# 追い込みくん
+English | [日本語](README.ja.md) | [中文](README.zh.md)
 
-筋トレ（HIIT: 高強度インターバルトレーニング）用のタイマーアプリ。ブラウザだけで動作し、一度開けばネットワーク接続なしで完全に動作します。
+# Oikomi-kun (追い込みくん)
 
-**👉 使う: https://shuniku.github.io/oikomikun/**
+A HIIT (High-Intensity Interval Training) timer app that runs entirely in the browser. Open it once and it works fully offline, with no network connection required.
 
-## 特徴
+**👉 Use it: https://shuniku.github.io/oikomikun/**
 
-- **準備 → 運動 → 休憩** のフェーズを自動遷移し、指定セット数を繰り返す
-- プリセットをワンタップで適用（マイセット、タバタ 20/10×8、HIIT標準 30/15×10、スプリント 45/15×6）
-- マイセットは現在の設定値でいつでも上書き保存できるパーソナルプリセット
-- 各フェーズの秒数・セット数は自由に設定可能。設定は自動保存され次回起動時に復元
-- フェーズ切替と残り3秒からのカウントダウンでビープ音（Web Audio API で合成・ON/OFF 可）
-- タイマー動作中は画面をスリープさせない（Wake Lock API 対応ブラウザ）
-- ジムの離れた場所からでも見える大型の残り時間表示と、フェーズごとの背景色（準備=青 / 運動=赤 / 休憩=緑）
-- バックグラウンドでタブが間引かれても残り時間がずれない時刻ベースの計算
-- スマートフォンは縦一列、PC・タブレット横向きは専用レイアウトで表示
-- 表示言語を 日本語 / English / 中文 から切り替え可能（初回はブラウザ言語から自動判定）
+## Features
 
-## 使い方
+- Automatically cycles through **Prepare → Work → Rest** phases for a configured number of sets
+- One-tap presets (My Set, Tabata 20/10×8, Standard HIIT 30/15×10, Sprint 45/15×6)
+- "My Set" is a personal preset you can overwrite at any time with your current settings
+- Freely configurable duration and set count for each phase, auto-saved and restored on next launch
+- Synthesized beep sounds (via Web Audio API, toggleable) on phase transitions and during the final 3-second countdown
+- Keeps the screen awake while the timer is running (on browsers that support the Wake Lock API)
+- Large remaining-time display visible from across the gym, with a background color per phase (Prepare = blue / Work = red / Rest = green)
+- Time-based calculation so the remaining time stays accurate even if the tab is throttled in the background
+- Single-column layout on smartphones, dedicated layouts for PC and landscape tablets
+- Switchable UI language — Japanese / English / Chinese (auto-detected from the browser on first visit)
+- PWA support — add it to your home screen to launch it like a native app, even offline
 
-上記 URL を開くだけです。スマートフォンならホーム画面に追加するとアプリのように使えます。
+## Usage
 
-オフラインで使う場合は、リポジトリを取得して `index.html` をブラウザで直接開いても同じように動作します（ビルド不要・外部リソース参照なし）。
+Just open the URL above. On a smartphone, add it to your home screen to use it like a native app.
+
+To use it offline, clone the repository and open `index.html` directly in a browser — it works the same way, with no build step and no external resources.
 
 ```bash
 git clone https://github.com/shuniku/oikomikun.git
 open oikomikun/index.html
 ```
 
-## 開発
+## Development
 
-フレームワーク・ビルドツール・外部依存なしの Vanilla JS です。詳細な仕様は [SPEC.md](SPEC.md) を参照してください。
+Vanilla JS with no framework, build tool, or external dependencies. See [SPEC.md](SPEC.md) for the full specification (in Japanese).
 
 ```
-├── index.html           # エントリポイント
-├── css/style.css        # スタイル
-├── js/timer.js          # タイマーロジック（純粋関数のみ・DOM非依存）
-├── js/app.js            # UI制御・音声・Wake Lock・localStorage
-└── test/timer.test.js   # ロジックのユニットテスト
+├── index.html              # Entry point
+├── manifest.webmanifest    # PWA manifest
+├── sw.js                   # Service worker
+├── css/style.css           # Styles
+├── js/timer.js             # Timer logic (pure functions only, DOM-free, language-agnostic)
+├── js/i18n.js              # Localization (ja / en / zh message dictionaries)
+├── js/app.js               # UI control, audio, Wake Lock, localStorage, language switching
+├── test/timer.test.js      # Unit tests for timer logic
+├── test/i18n.test.js       # Unit tests for the localization dictionaries
+└── e2e/                    # Playwright E2E tests
 ```
 
-### テスト
+### Testing
 
-ユニットテストは Node.js 組み込みのテストランナーで実行します。
+Unit tests run on Node.js's built-in test runner.
 
 ```bash
 node --test
 ```
 
-UI の E2E テストは Playwright で実行します（初回のみセットアップが必要）。
+UI E2E tests run with Playwright (one-time setup required).
 
 ```bash
 npm install
@@ -56,12 +64,12 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-push すると GitHub Actions で両方が自動実行されます。
+Both run automatically in GitHub Actions on every push.
 
-### デプロイ
+### Deployment
 
-`main` ブランチにプッシュすると GitHub Pages（リポジトリルート配信）へ自動反映されます。
+Pushing to the `main` branch automatically deploys to GitHub Pages (served from the repository root).
 
-## ライセンス
+## License
 
 [MIT License](LICENSE)
