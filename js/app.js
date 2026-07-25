@@ -1,5 +1,5 @@
 /**
- * UI制御・音声・Wake Lock・localStorage 保存。
+ * UI制御・音声・Wake Lock・全画面表示・localStorage 保存。
  * タイマーの計算はすべて js/timer.js（HiitTimer）に委譲する。
  */
 ;(function () {
@@ -28,6 +28,7 @@
     totalPreview: document.getElementById('total-preview'),
     errorBox: document.getElementById('error-box'),
     savePersonalButton: document.getElementById('btn-save-personal'),
+    fullscreenButton: document.getElementById('btn-fullscreen'),
     startButton: document.getElementById('btn-start'),
     pauseButton: document.getElementById('btn-pause'),
     resetButton: document.getElementById('btn-reset'),
@@ -233,10 +234,50 @@
     elements.presetRow.setAttribute('aria-label', messages.presetGroupLabel)
     renderPresetButtons()
     renderLanguageButtons()
+    renderFullscreenButton()
     showErrors(lastErrors)
     if (runtime) {
       renderTimer()
     }
+  }
+
+  // ===== 全画面表示（Fullscreen API・非対応ブラウザではボタンごと出さない） =====
+
+  const fullscreen = {
+    /** ベンダー接頭辞つきの API しか持たないブラウザ（旧 Safari 等）も拾う */
+    isSupported() {
+      const root = document.documentElement
+      return Boolean(root.requestFullscreen || root.webkitRequestFullscreen)
+    },
+
+    isActive() {
+      return Boolean(document.fullscreenElement || document.webkitFullscreenElement)
+    },
+
+    /** ユーザー操作を起点に呼ぶこと（ブラウザが要求する）。失敗しても通常表示のまま動作を続ける */
+    toggle() {
+      const root = document.documentElement
+      const request = root.requestFullscreen || root.webkitRequestFullscreen
+      const exit = document.exitFullscreen || document.webkitExitFullscreen
+      try {
+        const result = this.isActive() ? exit.call(document) : request.call(root)
+        // 旧 Safari の webkit 版は Promise を返さない
+        if (result && typeof result.catch === 'function') {
+          result.catch((error) => console.warn('全画面表示を切り替えられませんでした', error))
+        }
+      } catch (error) {
+        console.warn('全画面表示を切り替えられませんでした', error)
+      }
+    },
+  }
+
+  /** 言語切替時と全画面状態の変化時に呼ぶ。アイコンは CSS で出し分ける */
+  function renderFullscreenButton() {
+    const isActive = fullscreen.isActive()
+    const label = isActive ? t().fullscreen.exit : t().fullscreen.enter
+    elements.fullscreenButton.classList.toggle('is-fullscreen', isActive)
+    elements.fullscreenButton.setAttribute('aria-label', label)
+    elements.fullscreenButton.title = label
   }
 
   // ===== 音声（Web Audio API で合成、外部ファイル不使用） =====
@@ -501,6 +542,13 @@
     }
     elements.soundToggle.addEventListener('change', saveSettings)
     elements.savePersonalButton.addEventListener('click', handleSavePersonalClick)
+    if (fullscreen.isSupported()) {
+      elements.fullscreenButton.hidden = false
+      elements.fullscreenButton.addEventListener('click', () => fullscreen.toggle())
+      // Esc やブラウザ UI から解除された場合もラベル・アイコンを追従させる
+      document.addEventListener('fullscreenchange', renderFullscreenButton)
+      document.addEventListener('webkitfullscreenchange', renderFullscreenButton)
+    }
     elements.startButton.addEventListener('click', handleStartClick)
     elements.pauseButton.addEventListener('click', togglePause)
     elements.resetButton.addEventListener('click', resetTimer)

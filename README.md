@@ -15,6 +15,7 @@ A HIIT (High-Intensity Interval Training) timer app that runs entirely in the br
 - Synthesized beep sounds (via Web Audio API, toggleable) on phase transitions and during the final 3-second countdown
 - Keeps the screen awake while the timer is running (on browsers that support the Wake Lock API)
 - Large remaining-time display visible from across the gym, with a background color per phase (Prepare = blue / Work = red / Rest = green)
+- One-tap fullscreen from the button in the top-right corner (on supported browsers) — hides the browser tabs and address bar for an even bigger display
 - Time-based calculation so the remaining time stays accurate even if the tab is throttled in the background
 - Single-column layout on smartphones, dedicated layouts for PC and landscape tablets
 - Switchable UI language — Japanese / English / Chinese (auto-detected from the browser on first visit)

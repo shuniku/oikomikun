@@ -92,6 +92,64 @@ body.phase-finished { background-color: var(--bg-finished); }
   gap: 20px;
 }
 
+/* ===== 全画面切替ボタン（両画面共通・画面右上に固定） =====
+   ジムでの視認性のため、大きさは画面サイズに連動させず控えめな固定サイズに保つ */
+.fullscreen-btn {
+  position: fixed;
+  /* ノッチ・角丸端末でも隠れない位置に置く */
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  z-index: 10;
+  width: 66px;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--color-text-dim);
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  transition-property: color, background-color;
+  transition-duration: var(--duration-press);
+  transition-timing-function: var(--ease-out);
+}
+
+.fullscreen-btn svg {
+  width: 33px;
+  height: 33px;
+}
+
+/* 全画面中は解除アイコン、それ以外は拡大アイコンだけを見せる */
+.fullscreen-btn .icon-exit,
+.fullscreen-btn.is-fullscreen .icon-enter {
+  display: none;
+}
+
+.fullscreen-btn.is-fullscreen .icon-exit {
+  display: block;
+}
+
+.fullscreen-btn:active {
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.fullscreen-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .fullscreen-btn:hover {
+    color: var(--color-text);
+    background: var(--color-surface);
+  }
+}
+
 /* ===== 設定画面 ===== */
 .lang-row {
   display: flex;
