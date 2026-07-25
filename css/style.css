@@ -651,11 +651,12 @@ body.phase-work .time-display {
   #timer-screen {
     max-width: min(92vw, 72rem);
     display: grid;
-    /* 右カラムに 16rem の最低幅を保証し、左カラムは minmax(0, ...) で
-       auto の min-content 制約を外す。超ワイド画面で左カラムの巨大な
-       文字幅が右カラム（フェーズ・セット・操作）を圧迫し、日本語が
-       1 文字ずつ縦折れするのを防ぐ */
-    grid-template-columns: minmax(0, 1.7fr) minmax(16rem, 1fr);
+    /* 右カラム（フェーズ・セット・操作ボタン）は残り時間を優先して 0.67fr まで絞る。
+       操作ボタンはカラム幅いっぱいに伸びるため、これがそのままボタン幅になる。
+       最低幅 11rem は超ワイド画面で左カラムの巨大な文字幅が右カラムを圧迫し
+       日本語が 1 文字ずつ縦折れするのを防ぐための下限（左カラムは
+       minmax(0, ...) で auto の min-content 制約を外す） */
+    grid-template-columns: minmax(0, 1.7fr) minmax(11rem, 0.67fr);
     grid-template-areas:
       "time phase"
       "time counter"
@@ -673,21 +674,31 @@ body.phase-work .time-display {
   .time-display {
     grid-area: time;
     min-width: 0;
-    /* 22cqi: コンテナ幅（#timer-screen 全体）基準で左カラムに「00:00」が
-       収まる上限 / 52vh: 縦あふれ防止 */
-    font-size: min(22cqi, 52vh);
+    /* 25cqi: コンテナ幅（#timer-screen 全体）基準で左カラムに「00:00」が
+       収まる上限。右カラムを 1fr → 0.67fr に絞って広がった左カラム
+       （全体の約 63% → 約 72%）に合わせて 22cqi から引き上げている
+       / 56vh: 縦あふれ防止（行間 1.1 + 進捗バー・余白を足しても 1 画面に収まる） */
+    font-size: min(25cqi, 56vh);
   }
 
+  /* 右カラムの文字は cqi（カラム幅の元になる #timer-screen 幅）でも頭打ちにする。
+     カラムを 0.67fr に絞ったため、狭い横向きウインドウでは "Prepare" のような
+     長いフェーズ名が nowrap のままカラムからはみ出すのを防ぐ。
+     ウインドウが広いときは clamp 側（rem）が上限になり、指定どおりの大きさで出る */
   .phase-label {
     grid-area: phase;
     align-self: end;
     white-space: nowrap;
+    font-size: min(clamp(1.6rem, 8vw, 2.6rem), 5cqi);
   }
 
+  /* セット進捗は完了時に長文（「全 8 セット お疲れさまでした」）になり、
+     絞った右カラムには nowrap では収まらないため折り返させる。
+     1 文字ずつの縦折れはカラムの最低幅 11rem が防ぐ */
   .set-counter {
     grid-area: counter;
     align-self: start;
-    white-space: nowrap;
+    font-size: min(clamp(1.1rem, 5vw, 1.6rem), 3.5cqi);
   }
 
   .control-row {
