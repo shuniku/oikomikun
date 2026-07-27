@@ -215,6 +215,12 @@ test('PRESETS contains personal preset with 240/180 x6 and 5s prepare', () => {
   assert.equal(personal.config.sets, 6)
 })
 
+test('every preset uses a 5 second prepare phase', () => {
+  for (const preset of PRESETS) {
+    assert.equal(preset.config.prepareSec, 5, `preset ${preset.id} should prepare for 5 seconds`)
+  }
+})
+
 test('every preset config is valid', () => {
   for (const preset of PRESETS) {
     assert.equal(validateConfig(preset.config).isValid, true, `preset ${preset.id} should be valid`)

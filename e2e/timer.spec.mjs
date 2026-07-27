@@ -71,7 +71,7 @@ test('プリセットをタップすると入力欄に反映される', async ({
 
   await page.click('.preset-btn:has-text("タバタ")')
 
-  await expect(page.locator('#input-prepare')).toHaveValue('10')
+  await expect(page.locator('#input-prepare')).toHaveValue('5')
   await expect(page.locator('#input-work')).toHaveValue('20')
   await expect(page.locator('#input-rest')).toHaveValue('10')
   await expect(page.locator('#input-sets')).toHaveValue('8')

@@ -9,7 +9,7 @@ A HIIT (High-Intensity Interval Training) timer app that runs entirely in the br
 ## Features
 
 - Automatically cycles through **Prepare → Work → Rest** phases for a configured number of sets
-- One-tap presets (My Set, Tabata 20/10×8, Standard HIIT 30/15×10, Sprint 45/15×6)
+- One-tap presets (My Set, Tabata 20/10×8, Standard HIIT 30/15×10, Norwegian HIIT 240/180×4)
 - "My Set" is a personal preset you can overwrite at any time with your current settings
 - Freely configurable duration and set count for each phase, auto-saved and restored on next launch
 - Synthesized beep sounds (via Web Audio API, toggleable) on phase transitions and during the final 3-second countdown

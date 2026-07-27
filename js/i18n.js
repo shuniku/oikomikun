@@ -26,7 +26,7 @@
     ja: {
       documentTitle: '追い込みくん | HIITタイマー',
       presetGroupLabel: 'プリセット',
-      presetNames: { personal: 'マイセット', tabata: 'タバタ', 'hiit-standard': 'HIIT標準', sprint: 'スプリント' },
+      presetNames: { personal: 'マイセット', tabata: 'タバタ', 'hiit-standard': 'HIIT標準', norwegian: 'ノルウェー式HIIT' },
       fieldLabels: { prepareSec: '準備（秒）', workSec: '運動（秒）', restSec: '休憩（秒）', sets: 'セット数' },
       errorFieldNames: { prepareSec: '準備時間', workSec: '運動時間', restSec: '休憩時間', sets: 'セット数' },
       errorRange: '{label}は {min}〜{max} の整数で入力してください',
@@ -48,7 +48,7 @@
     en: {
       documentTitle: 'Oikomikun | HIIT Timer',
       presetGroupLabel: 'Presets',
-      presetNames: { personal: 'My Set', tabata: 'Tabata', 'hiit-standard': 'HIIT Standard', sprint: 'Sprint' },
+      presetNames: { personal: 'My Set', tabata: 'Tabata', 'hiit-standard': 'HIIT Standard', norwegian: 'Norwegian HIIT' },
       fieldLabels: { prepareSec: 'Prepare (sec)', workSec: 'Work (sec)', restSec: 'Rest (sec)', sets: 'Sets' },
       errorFieldNames: { prepareSec: 'Prepare time', workSec: 'Work time', restSec: 'Rest time', sets: 'Number of sets' },
       errorRange: '{label} must be an integer between {min} and {max}',
@@ -70,7 +70,7 @@
     zh: {
       documentTitle: 'Oikomikun | HIIT计时器',
       presetGroupLabel: '预设',
-      presetNames: { personal: '我的组合', tabata: 'Tabata', 'hiit-standard': 'HIIT标准', sprint: '冲刺' },
+      presetNames: { personal: '我的组合', tabata: 'Tabata', 'hiit-standard': 'HIIT标准', norwegian: '挪威式HIIT' },
       fieldLabels: { prepareSec: '准备（秒）', workSec: '运动（秒）', restSec: '休息（秒）', sets: '组数' },
       errorFieldNames: { prepareSec: '准备时间', workSec: '运动时间', restSec: '休息时间', sets: '组数' },
       errorRange: '{label}请输入 {min}～{max} 之间的整数',
