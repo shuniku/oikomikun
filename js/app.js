@@ -10,7 +10,7 @@
 
   const STORAGE_KEY = 'hiit-timer-settings'
   const TICK_INTERVAL_MS = 100
-  const COUNTDOWN_BEEP_FROM_SEC = 5
+  const COUNTDOWN_BEEP_FROM_SEC = 3
 
   const elements = {
     body: document.body,

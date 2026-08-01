@@ -202,22 +202,22 @@ test('PRESETS contains tabata with valid config', () => {
   assert.equal(tabata.config.sets, 8)
 })
 
-test('PRESETS contains personal preset with 240/180 x6 and 5s prepare', () => {
+test('PRESETS contains personal preset with 240/180 x6 and 6s prepare', () => {
   // Arrange / Act
   const personal = PRESETS.find((preset) => preset.id === 'personal')
 
   // Assert
   assert.ok(personal)
   assert.equal(validateConfig(personal.config).isValid, true)
-  assert.equal(personal.config.prepareSec, 5)
+  assert.equal(personal.config.prepareSec, 6)
   assert.equal(personal.config.workSec, 240)
   assert.equal(personal.config.restSec, 180)
   assert.equal(personal.config.sets, 6)
 })
 
-test('every preset uses a 5 second prepare phase', () => {
+test('every preset uses a 6 second prepare phase', () => {
   for (const preset of PRESETS) {
-    assert.equal(preset.config.prepareSec, 5, `preset ${preset.id} should prepare for 5 seconds`)
+    assert.equal(preset.config.prepareSec, 6, `preset ${preset.id} should prepare for 6 seconds`)
   }
 })
 

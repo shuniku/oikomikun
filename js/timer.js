@@ -23,25 +23,25 @@
     sets: { min: 1, max: 99 },
   }
 
-  const DEFAULT_CONFIG = Object.freeze({ prepareSec: 5, workSec: 20, restSec: 10, sets: 8 })
+  const DEFAULT_CONFIG = Object.freeze({ prepareSec: 6, workSec: 20, restSec: 10, sets: 8 })
 
   /** 表示名は言語依存のため持たない（js/i18n.js の presetNames が id をキーに解決する） */
   const PRESETS = Object.freeze([
     Object.freeze({
       id: 'personal',
-      config: Object.freeze({ prepareSec: 5, workSec: 240, restSec: 180, sets: 6 }),
+      config: Object.freeze({ prepareSec: 6, workSec: 240, restSec: 180, sets: 6 }),
     }),
     Object.freeze({
       id: 'tabata',
-      config: Object.freeze({ prepareSec: 5, workSec: 20, restSec: 10, sets: 8 }),
+      config: Object.freeze({ prepareSec: 6, workSec: 20, restSec: 10, sets: 8 }),
     }),
     Object.freeze({
       id: 'hiit-standard',
-      config: Object.freeze({ prepareSec: 5, workSec: 30, restSec: 15, sets: 10 }),
+      config: Object.freeze({ prepareSec: 6, workSec: 30, restSec: 15, sets: 10 }),
     }),
     Object.freeze({
       id: 'norwegian',
-      config: Object.freeze({ prepareSec: 5, workSec: 240, restSec: 180, sets: 4 }),
+      config: Object.freeze({ prepareSec: 6, workSec: 240, restSec: 180, sets: 4 }),
     }),
   ])
 
