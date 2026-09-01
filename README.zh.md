@@ -34,7 +34,7 @@ open oikomikun/index.html
 
 ## 开发
 
-采用不依赖任何框架、构建工具或外部依赖的原生 Vanilla JS 实现。详细规格请参见 [SPEC.md](SPEC.md)（日文）。
+采用不依赖任何框架、构建工具或外部依赖的原生 Vanilla JS 实现。详细规格请参见 [SPEC.zh.md](SPEC.zh.md)（另有 [English](SPEC.md) / [日本語](SPEC.ja.md) 版）。
 
 ```
 ├── index.html              # 入口文件

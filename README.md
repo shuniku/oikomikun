@@ -34,7 +34,7 @@ open oikomikun/index.html
 
 ## Development
 
-Vanilla JS with no framework, build tool, or external dependencies. See [SPEC.md](SPEC.md) for the full specification (in Japanese).
+Vanilla JS with no framework, build tool, or external dependencies. See [SPEC.md](SPEC.md) for the full specification (also available in [日本語](SPEC.ja.md) / [中文](SPEC.zh.md)).
 
 ```
 ├── index.html              # Entry point

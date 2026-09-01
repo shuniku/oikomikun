@@ -1,180 +1,188 @@
-# HIITタイマー 仕様書
+English | [日本語](SPEC.ja.md) | [中文](SPEC.zh.md)
 
-## 1. 概要
+# HIIT Timer Specification
 
-アプリ名: **追い込みくん**
+> The Japanese version ([SPEC.ja.md](SPEC.ja.md)) is the source of truth; the English and Chinese versions are translations of it. Keep all three in sync whenever the specification changes.
 
-筋トレ（HIIT: 高強度インターバルトレーニング）で使用するタイマーアプリケーション。
-ブラウザ上で動作し、一度ページを開けばネットワーク接続なしで完全に動作する。
+## 1. Overview
 
-## 2. 要件
+App name: **追い込みくん (Oikomi-kun)**
 
-### 2.1 機能要件
+A timer application for strength training (HIIT: High-Intensity Interval Training).
+It runs in the browser, and once the page has been opened it works entirely without a network connection.
 
-| ID | 要件 |
-|----|------|
-| F-01 | 準備（Prepare）→ 運動（Work）→ 休憩（Rest）のフェーズを自動で遷移する |
-| F-02 | 運動＋休憩を指定セット数だけ繰り返す（最終セットの休憩はスキップ） |
-| F-03 | 各フェーズの秒数とセット数をユーザーが自由に設定できる |
-| F-04 | プリセット（タバタ 20秒/10秒×8 など）をワンタップで適用できる |
-| F-05 | 開始 / 一時停止 / 再開 / リセットができる |
-| F-06 | 残り時間・現在フェーズ・現在セット数・全体進捗を表示する |
-| F-07 | フェーズ切替時と残り3秒からのカウントダウンで音を鳴らす |
-| F-08 | 設定値を localStorage に保存し、次回起動時に復元する |
-| F-09 | タイマー動作中は画面をスリープさせない（Wake Lock API、対応ブラウザのみ） |
-| F-10 | サウンドのON/OFFを切り替えられる |
-| F-11 | 表示言語を 日本語 / English / 中文 から切り替えられる。初回はブラウザ言語から自動判定（非対応言語は英語）し、選択は保存・復元される |
-| F-12 | プリセット「マイセット」を現在の入力値で上書き保存できる。保存値は localStorage に保持され次回起動時に復元される。不正な入力値では保存せずエラーを表示する |
-| F-13 | 全画面表示に切り替えられる（Fullscreen API、対応ブラウザのみ）。設定画面・タイマー画面のどちらからでも切り替え・解除ができる |
+## 2. Requirements
 
-### 2.2 非機能要件
+### 2.1 Functional requirements
 
-| ID | 要件 |
-|----|------|
-| N-01 | **完全オフライン動作**: 外部リソース（CDN・フォント・画像）への参照を一切持たない。`index.html` をファイルとして開くだけで動作する |
-| N-02 | スマートフォン・タブレット・PCのモダンブラウザ（Chrome / Safari / Firefox / Edge 最新版）で動作するレスポンシブUI |
-| N-03 | ジムで離れた場所からでも視認できる大きな残り時間表示と、フェーズごとの背景色変化 |
-| N-04 | バックグラウンドでタブが間引かれても時刻ベースの計算により残り時間がずれない（`setInterval` のカウントに依存しない） |
-| N-05 | 音声は外部ファイルを使わず Web Audio API で合成する |
+| ID | Requirement |
+|----|-------------|
+| F-01 | Automatically transitions through the Prepare → Work → Rest phases |
+| F-02 | Repeats Work + Rest for the configured number of sets (the rest of the final set is skipped) |
+| F-03 | The user can freely configure the duration of each phase and the set count |
+| F-04 | Presets (Tabata 20s/10s×8, etc.) can be applied with a single tap |
+| F-05 | Start / pause / resume / reset |
+| F-06 | Displays the remaining time, current phase, current set, and overall progress |
+| F-07 | Plays sounds on phase transitions and for the countdown from 3 seconds remaining |
+| F-08 | Saves the settings to localStorage and restores them on the next launch |
+| F-09 | Keeps the screen from sleeping while the timer runs (Wake Lock API, supported browsers only) |
+| F-10 | Sound can be toggled on/off |
+| F-11 | The UI language can be switched between 日本語 / English / 中文. On first visit it is auto-detected from the browser language (unsupported languages fall back to English), and the choice is saved and restored |
+| F-12 | The "My Set" preset can be overwritten with the current input values. The saved values are kept in localStorage and restored on the next launch. Invalid input is not saved and shows an error |
+| F-13 | Can switch to fullscreen (Fullscreen API, supported browsers only). It can be entered and exited from both the settings screen and the timer screen |
 
-### 2.3 入力値の制約（バリデーション）
+### 2.2 Non-functional requirements
 
-| 項目 | 範囲 | デフォルト |
-|------|------|-----------|
-| 準備時間 | 0〜300 秒 | 6 秒 |
-| 運動時間 | 1〜3600 秒 | 20 秒 |
-| 休憩時間 | 0〜3600 秒 | 10 秒 |
-| セット数 | 1〜99 | 8 |
+| ID | Requirement |
+|----|-------------|
+| N-01 | **Fully offline**: holds no reference to any external resource (CDN, fonts, images). Works simply by opening `index.html` as a file |
+| N-02 | Responsive UI that works on modern browsers (latest Chrome / Safari / Firefox / Edge) on smartphones, tablets, and PCs |
+| N-03 | A remaining-time display large enough to read from across the gym, plus a background color that changes per phase |
+| N-04 | Time-based calculation keeps the remaining time accurate even when the tab is throttled in the background (it does not rely on counting `setInterval` ticks) |
+| N-05 | Sounds are synthesized with the Web Audio API instead of using external files |
 
-範囲外・非数値の入力は開始をブロックし、エラーメッセージを表示する。
+### 2.3 Input constraints (validation)
 
-## 3. 画面仕様
+| Item | Range | Default |
+|------|-------|---------|
+| Prepare time | 0–300 sec | 6 sec |
+| Work time | 1–3600 sec | 20 sec |
+| Rest time | 0–3600 sec | 10 sec |
+| Sets | 1–99 | 8 |
 
-シングルページ構成。2つの状態を持つ。
+Out-of-range or non-numeric input blocks the start and shows an error message.
 
-両画面共通で、画面右上に全画面切替ボタンを固定表示する（Fullscreen API 非対応ブラウザでは表示しない）。ジムでの視認性を損なわないよう、アイコンのみの控えめな大きさとし、ウインドウサイズには連動させない。
+## 3. Screen specification
 
-レイアウトはデバイスで分ける:
+A single-page structure with two states.
 
-- **スマートフォン（および縦向き）**: 縦一列レイアウト（§3.1 / §3.2 の基本構成）
-- **PC・タブレット横向き（横幅 768px 以上かつ landscape）**: 専用レイアウト
-  - 設定画面: プリセット・数値入力を 1 行 4 列の横並びに配置
-  - タイマー画面: 残り時間を左に最大サイズで表示し、右カラムにフェーズ名・セット進捗・操作ボタンを縦積み。進捗バーは下部全幅
-    - 残り時間の視認性を最優先とし、右カラム（＝一時停止・リセットボタンの幅）は控えめに取る
+Both screens show a fixed fullscreen toggle button in the top-right corner (hidden on browsers that do not support the Fullscreen API). To avoid hurting visibility in the gym it is an icon-only button of modest size, and it does not scale with the window size.
 
-### 3.1 設定画面（初期表示）
+The layout differs by device:
 
-- 言語切替ボタン（日本語 / English / 中文。各言語自身の表記で常に表示）
-- アプリ名「追い込みくん」を丸ゴシック系のポップな書体・アクセント色で表示（サブタイトルなし。書体は OS 標準フォントのみ使用。アプリ名は全言語共通のブランド表記とし翻訳しない）
-- 準備 / 運動 / 休憩 / セット数 の数値入力
-- プリセットボタン: マイセット (240/180×6)、タバタ (20/10×8)、HIIT標準 (30/15×10)、ノルウェー式HIIT (240/180×4)
-  - 準備時間は全プリセット共通で 6 秒
-  - マイセットは最も利用頻度が高いプリセットのため先頭に表示する
-  - マイセットの値はユーザーが上書き保存でき、ボタンのラベルも保存値に追従する（記載の 240/180×6 は既定値）
-- 「現在の設定をマイセットに保存」ボタン（プリセット直下の控えめなテキストボタン）
-- 合計時間のプレビュー表示
-- サウンドON/OFFトグル
-- 「スタート」ボタン
+- **Smartphones (and portrait orientation)**: a single-column layout (the base structure of §3.1 / §3.2)
+- **PC and landscape tablets (width 768px or more and landscape)**: a dedicated layout
+  - Settings screen: presets and numeric inputs are laid out in a single row of 4 columns
+  - Timer screen: the remaining time is shown at maximum size on the left, with the phase name, set progress, and control buttons stacked in a right column. The progress bar spans the full width at the bottom
+    - Visibility of the remaining time takes top priority, so the right column (i.e. the width of the pause and reset buttons) is kept modest
 
-### 3.2 タイマー画面
+### 3.1 Settings screen (initial view)
 
-- 残り時間（分:秒）を画面中央に最大サイズで表示
-  - タブレット・PC（横幅 768px 以上）では文字・ボタン・入力欄の大きさがウインドウサイズ（幅・高さの小さい方）に連動して拡大縮小し、残り時間は特に大きく表示する。縦方向のスクロールは発生させない。スマートフォンは従来サイズのまま
-- 現在フェーズ名（準備 / 運動 / 休憩 / 完了）
-- セット進捗（例: `セット 3 / 8`）
-- 全体の進捗バー
-- フェーズごとの背景色: 準備=青、運動=赤、休憩=緑、完了=紺
-- 一時停止/再開ボタン、リセット（設定に戻る）ボタン
+- Language switch buttons (日本語 / English / 中文, always shown in each language's own script)
+- The app name "追い込みくん" in a rounded, playful typeface and accent color (no subtitle; the typeface uses OS-standard fonts only. The app name is a brand designation shared by all languages and is not translated)
+- Numeric inputs for prepare / work / rest / sets
+- Preset buttons: My Set (240/180×6), Tabata (20/10×8), Standard HIIT (30/15×10), Norwegian HIIT (240/180×4)
+  - The prepare time is 6 seconds for every preset
+  - My Set is shown first because it is the most frequently used preset
+  - The user can overwrite the My Set values, and the button label follows the saved values (the 240/180×6 listed above is the default)
+- A "Save current settings to My Set" button (a modest text button directly below the presets)
+- A preview of the total duration
+- A sound on/off toggle
+- A "Start" button
 
-## 4. 技術仕様
+### 3.2 Timer screen
 
-### 4.1 構成
+- The remaining time (minutes:seconds) at maximum size in the center of the screen
+  - On tablets and PCs (width 768px or more), text, buttons, and inputs scale with the window size (the smaller of width and height), and the remaining time is displayed especially large. No vertical scrolling occurs. Smartphones keep the existing sizes
+- The current phase name (Prepare / Work / Rest / Done)
+- Set progress (e.g. `Set 3 / 8`)
+- An overall progress bar
+- Background color per phase: Prepare = blue, Work = red, Rest = green, Done = navy
+- Pause/resume button and a reset (back to settings) button
 
-ビルドツール・フレームワーク・外部依存なしの Vanilla JS。
-`file://` で開いた場合 ES Modules が CORS 制約で動かないため、通常の `<script>` 読み込みとし、
-ロジックは Node.js からもテストできるよう UMD 形式でエクスポートする。
+## 4. Technical specification
+
+### 4.1 Structure
+
+Vanilla JS with no build tool, framework, or external dependency.
+Because ES Modules are blocked by CORS when opened via `file://`, scripts are loaded with plain `<script>` tags,
+and the logic is exported in UMD format so it can also be tested from Node.js.
 
 ```
 /
-├── SPEC.md              # 本仕様書
-├── README.md            # 利用者・開発者向け概要
-├── index.html           # エントリポイント
-├── manifest.webmanifest # PWA マニフェスト
-├── sw.js                # Service Worker（公開ページのオフライン動作用）
-├── css/style.css        # スタイル
-├── image/favicon.svg    # ファビコン（SVG）
-├── image/apple-touch-icon.png  # ホーム画面追加用アイコン（180×180）
-├── image/icon-192.png   # PWA アイコン
-├── image/icon-512.png   # PWA アイコン
-├── js/timer.js          # タイマーロジック（純粋関数のみ・DOM非依存・言語非依存）
-├── js/i18n.js           # UI文言の辞書（ja/en/zh）と整形ヘルパー
-├── js/app.js            # UI制御・音声・Wake Lock・localStorage・SW登録・言語切替
-├── test/timer.test.js   # ロジックのユニットテスト（node --test）
-├── test/i18n.test.js    # 辞書の整合性テスト（全言語のキー構造一致など）
-└── e2e/*.spec.mjs       # UI の E2E テスト（Playwright）
+├── SPEC.md              # This specification (English)
+├── SPEC.ja.md           # Specification (Japanese, source of truth)
+├── SPEC.zh.md           # Specification (Chinese)
+├── README.md            # Overview for users and developers (English)
+├── README.ja.md         # Same (Japanese)
+├── README.zh.md         # Same (Chinese)
+├── index.html           # Entry point
+├── manifest.webmanifest # PWA manifest
+├── sw.js                # Service worker (offline support for the published page)
+├── css/style.css        # Styles
+├── image/favicon.svg    # Favicon (SVG)
+├── image/apple-touch-icon.png  # Icon for adding to the home screen (180×180)
+├── image/icon-192.png   # PWA icon
+├── image/icon-512.png   # PWA icon
+├── js/timer.js          # Timer logic (pure functions only, DOM-free, language-agnostic)
+├── js/i18n.js           # UI message dictionaries (ja/en/zh) and formatting helpers
+├── js/app.js            # UI control, audio, Wake Lock, localStorage, SW registration, language switching
+├── test/timer.test.js   # Unit tests for the logic (node --test)
+├── test/i18n.test.js    # Consistency tests for the dictionaries (matching key structures across languages, etc.)
+└── e2e/*.spec.mjs       # E2E tests for the UI (Playwright)
 ```
 
-### 4.2 タイマーロジック（js/timer.js）
+### 4.2 Timer logic (js/timer.js)
 
-すべて純粋関数・イミュータブル。状態の変更は常に新しいオブジェクトを返す。
+Everything is a pure function and immutable. State changes always return a new object.
 
-- `validateConfig(config)` — 設定値を検証し `{ isValid, errors }` を返す。errors は言語非依存の構造化データ `[{ field, min, max }]` で、メッセージ文言への変換は表示層（app.js + i18n.js）が行う
-- `buildSchedule(config)` — 設定からフェーズ配列を生成する
-  - 例: `[{type:'prepare', durationMs}, {type:'work', set:1, ...}, {type:'rest', set:1, ...}, ... {type:'work', set:N, ...}]`
-  - 準備時間 0 のとき prepare フェーズは含めない。最終セットの後に rest は付けない
-- `createInitialState(schedule)` — 初期状態 `{ phaseIndex, phaseRemainingMs, isFinished }` を返す
-- `advance(schedule, state, deltaMs)` — 経過時間を適用した新しい状態を返す。フェーズをまたぐ余剰時間は次フェーズへ繰り越す
-- `totalDurationMs(schedule)` / `elapsedMs(schedule, state)` — 進捗バー用
-- `PRESETS` — プリセット定義（id と config のみ。表示名は i18n 側で id から解決）
+- `validateConfig(config)` — validates the settings and returns `{ isValid, errors }`. `errors` is language-agnostic structured data `[{ field, min, max }]`; converting it into message text is the job of the presentation layer (app.js + i18n.js)
+- `buildSchedule(config)` — generates the phase array from the settings
+  - e.g. `[{type:'prepare', durationMs}, {type:'work', set:1, ...}, {type:'rest', set:1, ...}, ... {type:'work', set:N, ...}]`
+  - When the prepare time is 0, the prepare phase is not included. No rest is appended after the final set
+- `createInitialState(schedule)` — returns the initial state `{ phaseIndex, phaseRemainingMs, isFinished }`
+- `advance(schedule, state, deltaMs)` — returns a new state with the elapsed time applied. Surplus time that crosses a phase boundary is carried over into the next phase
+- `totalDurationMs(schedule)` / `elapsedMs(schedule, state)` — for the progress bar
+- `PRESETS` — preset definitions (id and config only; display names are resolved from the id on the i18n side)
 
-### 4.2.1 多言語対応（js/i18n.js）
+### 4.2.1 Localization (js/i18n.js)
 
-- 対応言語: 日本語（ja）/ English（en）/ 中文（zh、簡体字）
-- すべての UI 文言は `js/i18n.js` の辞書 `MESSAGES` に置き、app.js に直書きしない
-- プレースホルダは `{name}` 形式で `format()` により置換する
-- 言語選択は localStorage の設定に含めて保存。初回は `navigator.language` から判定（ja→ja、zh→zh、それ以外→en）
-- 切替時は `html` の `lang` 属性と `document.title` も更新する
-- アプリ名「追い込みくん」は翻訳しない（ブランド表記）
+- Supported languages: Japanese (ja) / English (en) / Chinese (zh, simplified)
+- All UI text lives in the `MESSAGES` dictionary in `js/i18n.js` and is never hard-coded in app.js
+- Placeholders use the `{name}` form and are substituted by `format()`
+- The language choice is included in the settings saved to localStorage. On first visit it is determined from `navigator.language` (ja→ja, zh→zh, anything else→en)
+- Switching also updates the `lang` attribute of `html` and `document.title`
+- The app name "追い込みくん" is not translated (brand designation)
 
-### 4.3 時間管理（js/app.js）
+### 4.3 Time management (js/app.js)
 
-`performance.now()` の差分で経過時間を計算し、`setInterval`（100ms）で描画を更新する。残り時間はティック回数ではなく実時間から算出するため、バックグラウンドでタイマーが間引かれても復帰時に正しい残り時間へ追いつく（N-04）。
+The elapsed time is computed from the difference of `performance.now()`, and the display is updated by `setInterval` (100ms). Because the remaining time is derived from real time rather than a tick count, the timer catches up to the correct remaining time when it returns from being throttled in the background (N-04).
 
-### 4.4 音声
+### 4.4 Audio
 
-Web Audio API の `OscillatorNode` でビープ音を合成する。
+Beeps are synthesized with the Web Audio API's `OscillatorNode`.
 
-| イベント | 音 |
-|----------|----|
-| 残り3・2・1秒 | 短い低めのビープ（880Hz, 100ms） |
-| 運動フェーズ開始 | 高い長めのビープ（1320Hz, 1000ms） |
-| 休憩/準備フェーズ開始 | 中間の長めのビープ（660Hz, 1000ms） |
-| 全メニュー完了 | 3連ビープ |
+| Event | Sound |
+|-------|-------|
+| 3 / 2 / 1 seconds remaining | A short, lower beep (880Hz, 100ms) |
+| Start of a work phase | A high, longer beep (1320Hz, 1000ms) |
+| Start of a rest/prepare phase | A mid, longer beep (660Hz, 1000ms) |
+| Whole menu complete | Three consecutive beeps |
 
-`AudioContext` はユーザー操作（スタートボタン）を起点に生成する（自動再生制限対策）。
+The `AudioContext` is created from a user gesture (the start button) to work around autoplay restrictions.
 
-### 4.5 全画面表示
+### 4.5 Fullscreen
 
-Fullscreen API（`documentElement.requestFullscreen()` / `document.exitFullscreen()`）で `html` 要素を全画面にする。ベンダー接頭辞つき（`webkitRequestFullscreen` 等）しか持たないブラウザにも対応する。
+The Fullscreen API (`documentElement.requestFullscreen()` / `document.exitFullscreen()`) puts the `html` element into fullscreen. Browsers that only offer vendor-prefixed versions (`webkitRequestFullscreen`, etc.) are supported as well.
 
-- 切替はユーザー操作を起点に行う（ブラウザの制約）
-- API 非対応（iPhone の Safari 等）の場合はボタン自体を表示しない。PWA としてホーム画面から起動すればスタンドアロン表示になるため、機能の代替手段は確保されている
-- `fullscreenchange` を監視し、Esc やブラウザ UI から解除された場合もボタンのアイコンとラベルを追従させる
-- 切替の失敗は握りつぶし、通常表示のまま動作を継続する（タイマー機能に影響させない）
-- 全画面状態は保存しない（次回起動時は通常表示から始まる）
+- Toggling is triggered by a user gesture (a browser restriction)
+- When the API is unsupported (Safari on iPhone, etc.) the button itself is hidden. Launching the PWA from the home screen gives a standalone display, so an alternative to the feature is still available
+- `fullscreenchange` is observed so that the button's icon and label follow along even when fullscreen is exited via Esc or the browser UI
+- Failures to toggle are swallowed and the app keeps running in the normal view (the timer functionality is unaffected)
+- The fullscreen state is not saved (the next launch starts in the normal view)
 
-## 5. テスト
+## 5. Testing
 
-- ユニットテスト: `js/timer.js` の全純粋関数（`node --test` で実行）
-- E2E テスト: 画面切替・フェーズ遷移・入力検証・設定復元など（Playwright、`npm run test:e2e` で実行）
-- push 時に GitHub Actions で両方を自動実行する
-- 音・Wake Lock・実機のスマホ表示はブラウザでの手動確認とする
+- Unit tests: every pure function in `js/timer.js` (run with `node --test`)
+- E2E tests: screen transitions, phase transitions, input validation, settings restoration, and so on (Playwright, run with `npm run test:e2e`)
+- Both run automatically in GitHub Actions on push
+- Sound, Wake Lock, and the display on real smartphones are verified manually in a browser
 
-## 6. 配信
+## 6. Distribution
 
-GitHub Pages で公開する。
+Published on GitHub Pages.
 
-- ビルド工程がないため、`main` ブランチのリポジトリルートをそのまま配信する
-- N-01（完全オフライン動作）は公開後も維持する。`file://` で開く利用方法と GitHub Pages 経由の利用方法の両方をサポートする
-- プロジェクトサイトは `https://<ユーザー名>.github.io/<リポジトリ名>/` 配下で配信されるため、アセット参照は相対パスとする
-- PWA として提供する: manifest によりホーム画面へスタンドアロン表示でインストールでき、Service Worker（ネットワーク優先・キャッシュフォールバック）により公開ページ経由でも 2 回目以降は完全オフラインで起動する
+- Because there is no build step, the repository root of the `main` branch is served as-is
+- N-01 (fully offline) is maintained after publishing. Both opening it via `file://` and using it through GitHub Pages are supported
+- A project site is served under `https://<username>.github.io/<repository>/`, so asset references use relative paths
+- Provided as a PWA: the manifest allows installing it to the home screen with a standalone display, and the service worker (network first, cache fallback) makes it start fully offline from the second visit onward even via the published page

@@ -34,7 +34,7 @@ open oikomikun/index.html
 
 ## 開発
 
-フレームワーク・ビルドツール・外部依存なしの Vanilla JS です。詳細な仕様は [SPEC.md](SPEC.md) を参照してください。
+フレームワーク・ビルドツール・外部依存なしの Vanilla JS です。詳細な仕様は [SPEC.ja.md](SPEC.ja.md) を参照してください（[English](SPEC.md) / [中文](SPEC.zh.md) 版もあります）。
 
 ```
 ├── index.html              # エントリポイント
