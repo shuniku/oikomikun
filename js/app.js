@@ -126,8 +126,9 @@
 
   function readConfigFromInputs() {
     const toInt = (input) => {
-      const value = Number.parseInt(input.value, 10)
-      return Number.isNaN(value) ? NaN : value
+      // 小数入力を validateConfig の整数チェックで弾けるよう、parseInt で
+      // 切り捨てず Number で変換する（空欄は NaN として扱う）
+      return input.value.trim() === '' ? NaN : Number(input.value)
     }
     return {
       prepareSec: toInt(elements.inputs.prepareSec),

@@ -118,6 +118,16 @@ test('不正な入力ではエラーを表示して開始しない', async ({ pa
   await expect(page.locator('#timer-screen')).toBeHidden()
 })
 
+test('小数の入力ではエラーを表示して開始しない', async ({ page }) => {
+  await page.goto('/')
+  await fillConfig(page, { prepare: 10, work: 20.5, rest: 10, sets: 8 })
+
+  await page.click('#btn-start')
+
+  await expect(page.locator('#error-box')).toBeVisible()
+  await expect(page.locator('#timer-screen')).toBeHidden()
+})
+
 test('設定は保存され再読み込み後に復元される', async ({ page }) => {
   await page.goto('/')
   await fillConfig(page, { prepare: 5, work: 240, rest: 180, sets: 6 })
