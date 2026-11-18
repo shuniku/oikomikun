@@ -74,3 +74,13 @@ test('エラーメッセージも選択言語で表示される', async ({ page 
     'Work time must be an integer between 1 and 3600'
   )
 })
+
+test('数値欄が無効な状態でも言語の選択は保存される', async ({ page }) => {
+  await page.goto('/')
+  await page.fill('#input-work', '')
+  await page.click('.lang-btn:has-text("English")')
+
+  await page.reload()
+
+  await expect(page.locator('.lang-btn.is-active')).toHaveText('English')
+})

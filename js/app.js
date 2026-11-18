@@ -104,28 +104,14 @@
     }
   }
 
-  /** 入力値が無効なときに保持する config（前回保存値が有効ならそれ、なければ既定値） */
-  function fallbackConfig() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Timer.validateConfig(parsed.config).isValid) {
-          return parsed.config
-        }
-      }
-    } catch (error) {
-      // 読み込み失敗時は既定値へフォールバックする
-    }
-    return Timer.DEFAULT_CONFIG
-  }
-
   function saveSettings() {
     const inputConfig = readConfigFromInputs()
     // config が一時的に無効（空欄など）でも、sound/language/personalConfig の
     // 保存まで巻き添えにしない。config 自体は前回保存値（なければ既定値）を保持し、
     // 有効な入力が戻れば次の保存で上書きされる。
-    const config = Timer.validateConfig(inputConfig).isValid ? inputConfig : fallbackConfig()
+    const config = Timer.validateConfig(inputConfig).isValid
+      ? inputConfig
+      : loadSettings().config
     try {
       const settings = {
         config,
