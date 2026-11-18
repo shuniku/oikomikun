@@ -105,10 +105,13 @@
   }
 
   function saveSettings() {
-    const config = readConfigFromInputs()
-    if (!Timer.validateConfig(config).isValid) {
-      return
-    }
+    const inputConfig = readConfigFromInputs()
+    // config が一時的に無効（空欄など）でも、sound/language/personalConfig の
+    // 保存まで巻き添えにしない。config 自体は前回保存値（なければ既定値）を保持し、
+    // 有効な入力が戻れば次の保存で上書きされる。
+    const config = Timer.validateConfig(inputConfig).isValid
+      ? inputConfig
+      : loadSettings().config
     try {
       const settings = {
         config,
